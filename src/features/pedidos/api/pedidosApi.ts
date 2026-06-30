@@ -4,11 +4,12 @@ import { Pedido, PedidoList, PedidoCreate, DireccionCreate, DireccionRead, Forma
 const BASE = "/api/v1/pedidos";
 
 export const pedidosApi = {
-  getAll: (offset = 0, limit = 50, desde?: string, hasta?: string, search?: string) => {
+  getAll: (offset = 0, limit = 50, desde?: string, hasta?: string, search?: string, estado?: string) => {
     const params = new URLSearchParams({ offset: String(offset), limit: String(limit) });
     if (desde) params.set("desde", desde);
     if (hasta) params.set("hasta", hasta);
     if (search) params.set("search", search);
+    if (estado) params.set("estado", estado);
     return api.get<PedidoList>(`${BASE}/?${params}`).then((r) => r.data);
   },
 

@@ -1,23 +1,8 @@
 // features/auth/types/index.ts
+// Tipos específicos del feature auth. UsuarioRead y UsuarioCreate se movieron a shared/types/
+// porque son usados por múltiples features (FSD: sin cross-imports entre features).
+
 export interface LoginInput {
     email: string;
     password: string;
-}
-
-export interface UsuarioCreate {
-    nombre: string;
-    apellido: string;
-    email: string;
-    celular?: string;
-    password: string;
-}
-
-export interface UsuarioRead {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    celular: string | null;
-    roles: string[];
-    deleted_at: string | null;
 }

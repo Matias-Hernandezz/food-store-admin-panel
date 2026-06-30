@@ -1,5 +1,6 @@
 import api from "../../../shared/api/axiosClient";
-import type { LoginInput, UsuarioRead, UsuarioCreate } from "../types";
+import type { LoginInput } from "../types";
+import type { UsuarioRead, UsuarioCreate } from "../../../shared/types";
 
 const BASE = "/api/v1/auth";
 

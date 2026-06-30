@@ -16,17 +16,17 @@ export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Prop
 
     return (
         <div className="rounded-2xl p-5 shadow-sm flex flex-col h-full" style={{ backgroundColor: "#fff", border: "1px solid #E5E2DA" }}>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-wrap items-start justify-between gap-y-2 mb-3">
                 <div>
                     <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono" style={{ color: "#9a8070" }}>#{pedido.id}</span>
+                        <span className="text-sm font-semibold font-mono" style={{ color: "#9a8070" }}>#{pedido.id}</span>
                         {pedido.usuario_nombre && (
                             <span className="text-sm font-semibold" style={{ color: "#2d1e0f" }}>
                                 {pedido.usuario_nombre}
                             </span>
                         )}
                     </div>
-                    <p className="text-xs mt-0.5" style={{ color: "#9a8070" }}>
+                    <p className="text-xs mt-0.5 break-words" style={{ color: "#9a8070" }}>
                         {new Date(pedido.created_at).toLocaleDateString("es-AR")}{" "}
                         {new Date(pedido.created_at).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}
                         {pedido.forma_pago_codigo === "EFECTIVO" && " · Efectivo"}
@@ -34,7 +34,7 @@ export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Prop
                         {pedido.forma_pago_codigo === "TRANSFERENCIA" && " · Transf."}
                     </p>
                 </div>
-                <span className={`text-xs font-bold px-3 py-1 rounded-full ${ESTADO_COLOR[pedido.estado_codigo]}`}>
+                <span className={`text-xs font-bold px-3 py-1 rounded-full shrink-0 ${ESTADO_COLOR[pedido.estado_codigo]}`}>
                     {ESTADO_LABEL[pedido.estado_codigo]}
                 </span>
             </div>
@@ -50,15 +50,26 @@ export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Prop
                 </div>
             )}
 
+            {pedido.notas && (
+                <div className="mb-3 p-3 rounded-xl bg-amber-50 border border-amber-100">
+                    <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-1">
+                        📝 Notas
+                    </p>
+                    <p className="text-[11px] italic text-[#2d1e0f]">
+                        "{pedido.notas}"
+                    </p>
+                </div>
+            )}
+
             <div className="pt-3 mb-3 space-y-1 mt-auto" style={{ borderTop: "1px solid #E5E2DA" }}>
                 {pedido.detalles.map((d) => (
-                    <div key={d.producto_id}>
+                    <div key={d.id ?? d.producto_id}>
                         <div className="flex justify-between text-sm">
                             <span style={{ color: "#6b5a4e" }}>{d.cantidad}x {d.nombre_snapshot}</span>
                             <span className="font-medium" style={{ color: "#2d1e0f" }}>${Number(d.subtotal).toFixed(2)}</span>
                         </div>
                         {Array.isArray(d.personalizacion) && d.personalizacion.length > 0 && ingredientesMap && (
-                            <p className="text-[10px] text-red-500 italic ml-1 -mt-0.5 mb-1">
+                            <p className="text-[11px] text-red-500 italic ml-1 -mt-0.5 mb-1">
                                 Sin: {ingredientesMap.size > 0
                                     ? d.personalizacion.map((id) => ingredientesMap.get(Number(id)) ?? `#${id}`).join(", ")
                                     : `${d.personalizacion.length} ingrediente(s)`}

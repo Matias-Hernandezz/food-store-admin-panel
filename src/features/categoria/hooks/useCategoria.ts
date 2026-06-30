@@ -1,7 +1,7 @@
 import { useQuery, QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { categoriaApi } from "../api/categoria.actions";
 import { useUIStore } from "../../../store/uiStore";
-import type { CategoriaCreate, CategoriaUpdate } from "../../../shared/types";
+import type { Categoria, CategoriaCreate, CategoriaUpdate, PaginatedResponse } from "../../../shared/types";
 import type { AxiosError } from "axios";
 
 const CATEGORIA_KEY = ["categorias"] as const;
@@ -84,11 +84,11 @@ export function useCategorias({
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: CATEGORIA_KEY });
       const previous = queryClient.getQueriesData({ queryKey: CATEGORIA_KEY })
-        .filter(([, d]) => d != null) as [QueryKey, any][];
+        .filter(([, d]) => d != null) as [QueryKey, PaginatedResponse<Categoria>][];
       previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, {
           ...data,
-          data: data.data.map((c: any) =>
+          data: data.data.map((c: Categoria) =>
             c.id === id ? { ...c, deleted_at: new Date().toISOString() } : c
           ),
         });
@@ -100,7 +100,7 @@ export function useCategorias({
     },
     onError: (err: AxiosError<{ detail: string }>, _id, context) => {
       if (context?.previous) {
-        context.previous.forEach(([key, data]: any) => queryClient.setQueryData(key, data));
+        context.previous.forEach(([key, data]: PaginatedResponse<Categoria>) => queryClient.setQueryData(key, data));
       }
       const status = err?.response?.status;
       const detail = err?.response?.data?.detail || err?.message || "";
@@ -119,11 +119,11 @@ export function useCategorias({
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: CATEGORIA_KEY });
       const previous = queryClient.getQueriesData({ queryKey: CATEGORIA_KEY })
-        .filter(([, d]) => d != null) as [QueryKey, any][];
+        .filter(([, d]) => d != null) as [QueryKey, PaginatedResponse<Categoria>][];
       previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, {
           ...data,
-          data: data.data.map((c: any) =>
+          data: data.data.map((c: Categoria) =>
             c.id === id ? { ...c, deleted_at: null } : c
           ),
         });
@@ -135,7 +135,7 @@ export function useCategorias({
     },
     onError: (err: AxiosError<{ detail: string }>, _id, context) => {
       if (context?.previous) {
-        context.previous.forEach(([key, data]: any) => queryClient.setQueryData(key, data));
+        context.previous.forEach(([key, data]: PaginatedResponse<Categoria>) => queryClient.setQueryData(key, data));
       }
       const status = err?.response?.status;
       const detail = err?.response?.data?.detail || err?.message || "";

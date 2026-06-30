@@ -15,13 +15,13 @@ export function ProductosTopChart({ data, loading, error, onRetry }: Props) {
   return (
     <div style={{ width: "100%", height: 250 }}>
       <ResponsiveContainer>
-        <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={C.grid} horizontal={false} />
-          <XAxis type="number" tick={{ fontSize: 11, fill: C.muted }} tickFormatter={(v) => `$${Number(v).toFixed(0)}`} />
-          <YAxis type="category" dataKey="nombre" tick={{ fontSize: 11, fill: C.text }} width={140} />
+        <BarChart data={chartData} margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke={C.grid} />
+          <XAxis dataKey="nombre" tick={{ fontSize: 11, fill: C.text }} angle={-35} textAnchor="end" height={80} />
+          <YAxis tick={{ fontSize: 11, fill: C.muted }} tickFormatter={(v) => `$${Number(v).toFixed(0)}`} />
           <Tooltip contentStyle={{ backgroundColor: C.card, border: `1px solid ${C.grid}`, borderRadius: 8, fontSize: 12, color: C.text }}
             formatter={(value: number, name: string) => [name === "ingresos" ? `$${value.toFixed(2)}` : `${value} vend.`, name === "ingresos" ? "Ingresos" : "Cantidad"]} />
-          <Bar dataKey="ingresos" fill={C.primary} radius={[0, 4, 4, 0]} barSize={20} />
+          <Bar dataKey="ingresos" fill={C.primary} radius={[4, 4, 0, 0]} barSize={30} />
         </BarChart>
       </ResponsiveContainer>
     </div>

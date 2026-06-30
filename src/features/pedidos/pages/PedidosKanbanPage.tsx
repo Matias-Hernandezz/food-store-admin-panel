@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../../shared/api/axiosClient";
 import { usePedidos, ESTADO_LABEL } from "../hooks/usePedidos";
@@ -42,6 +42,29 @@ export function PedidosKanbanPage() {
     const [fechaFiltro, setFechaFiltro] = useState<"TODOS" | "HOY" | "PERSONALIZADO">("TODOS");
     const [fechaCustom, setFechaCustom] = useState(hoyISO());
     const [search, setSearch] = useState("");
+    const [estadoFiltro, setEstadoFiltro] = useState<string>("TODOS");
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Cierra el dropdown al clickear afuera
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
+
+    // Mapa de colores para los dots del dropdown
+    const ESTADO_DOT: Record<string, string> = {
+        PENDIENTE: "#ca8a04",
+        CONFIRMADO: "#2563eb",
+        EN_PREP: "#ea580c",
+        ENTREGADO: "#16a34a",
+        CANCELADO: "#dc2626",
+    };
 
     const { desde, hasta } = useMemo(() => {
         if (fechaFiltro === "HOY") {
@@ -55,8 +78,9 @@ export function PedidosKanbanPage() {
     }, [fechaFiltro, fechaCustom]);
 
     const searchTerm = search.trim() || undefined;
+    const estadoParam = estadoFiltro !== "TODOS" ? estadoFiltro : undefined;
 
-    const { data, isLoading } = usePedidos({ desde, hasta, search: searchTerm });
+    const { data, isLoading } = usePedidos({ desde, hasta, search: searchTerm, estado: estadoParam });
     const { avanzarEstado: avanzar, avanzarEstadoPending: avanzarPending } = usePedidos({ enabled: false });
 
     const { data: ingredientesData } = useQuery({
@@ -68,7 +92,7 @@ export function PedidosKanbanPage() {
         (ingredientesData?.data ?? []).map((i) => [i.id, i.nombre])
     ), [ingredientesData]);
 
-    const pedidos = (data?.data ?? []).filter((p) => p.estado_codigo !== "CANCELADO");
+    const pedidos = data?.data ?? [];
 
     const pedidosPorEstado = (codigo: string) =>
         pedidos.filter((p) => p.estado_codigo === codigo);
@@ -93,8 +117,8 @@ export function PedidosKanbanPage() {
                 </div>
             </div>
 
-            {/* Barra de filtros: fecha + búsqueda */}
-            <div className="flex items-center gap-2 mb-5">
+            {/* Barra de filtros: fecha + estado + búsqueda */}
+            <div className="flex items-center gap-2 mb-5 flex-wrap">
                 {(["TODOS", "HOY", "PERSONALIZADO"] as const).map((f) => (
                     <button
                         key={f}
@@ -118,6 +142,67 @@ export function PedidosKanbanPage() {
                     />
                 )}
 
+                {/* Separador visual */}
+                <span className="w-px h-5 mx-1" style={{ backgroundColor: "#E5E2DA" }} />
+
+                {/* Dropdown de estado */}
+                <div className="relative" ref={dropdownRef}>
+                    <button
+                        onClick={() => setDropdownOpen((p) => !p)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full transition-all whitespace-nowrap"
+                        style={{ backgroundColor: "#fff", border: "1px solid #E5E2DA", color: "#6b5a4e" }}
+                    >
+                        {estadoFiltro !== "TODOS" && (
+                            <span
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{ backgroundColor: ESTADO_DOT[estadoFiltro] ?? "#6b5a4e" }}
+                            />
+                        )}
+                        {estadoFiltro === "TODOS" ? "Todos los estados" : ESTADO_LABEL[estadoFiltro]}
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ opacity: 0.5 }}>
+                            <path d="M7 10l5 5 5-5z" />
+                        </svg>
+                    </button>
+
+                    {dropdownOpen && (
+                        <div
+                            className="absolute top-full left-0 mt-1 rounded-xl p-2 z-50 min-w-[180px]"
+                            style={{
+                                backgroundColor: "#222",
+                                border: "1px solid #333",
+                                boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                            }}
+                        >
+                            {(["TODOS", "PENDIENTE", "CONFIRMADO", "EN_PREP", "ENTREGADO", "CANCELADO"] as const).map((codigo) => (
+                                <button
+                                    key={codigo}
+                                    onClick={() => { setEstadoFiltro(codigo); setDropdownOpen(false); }}
+                                    className="w-full flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg transition-colors text-left"
+                                    style={{
+                                        color: estadoFiltro === codigo ? "#fff" : "#aaa",
+                                        backgroundColor: estadoFiltro === codigo ? "rgba(255,255,255,0.08)" : "transparent",
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (estadoFiltro !== codigo) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.04)";
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (estadoFiltro !== codigo) e.currentTarget.style.backgroundColor = "transparent";
+                                    }}
+                                >
+                                    {codigo !== "TODOS" && (
+                                        <span
+                                            className="w-2 h-2 rounded-full shrink-0"
+                                            style={{ backgroundColor: ESTADO_DOT[codigo] }}
+                                        />
+                                    )}
+                                    <span>{codigo === "TODOS" ? "Todos los estados" : ESTADO_LABEL[codigo]}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Buscador — ocupa el espacio restante */}
                 <div className="flex-1 relative ml-1">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#8b6b4a" }}>
                         <SearchIcon size={16} />
@@ -141,9 +226,31 @@ export function PedidosKanbanPage() {
                 <div className="flex justify-center py-20">
                     <div className="w-8 h-8 border-2 border-[#C87A2E] border-t-transparent rounded-full animate-spin" />
                 </div>
+            ) : estadoFiltro !== "TODOS" ? (
+                /* ── Vista filtrada por un solo estado ── */
+                <div>
+                    <h2 className="text-sm font-black uppercase tracking-wider mb-4" style={{ color: "#9a8070" }}>
+                        {ESTADO_LABEL[estadoFiltro] ?? estadoFiltro}: {pedidos.length}
+                    </h2>
+                    {pedidos.length === 0 ? (
+                        <div
+                            className="rounded-xl border border-dashed flex items-center justify-center"
+                            style={{ borderColor: "#E5E2DA", minHeight: 120 }}
+                        >
+                            <p className="text-xs" style={{ color: "#9a8070" }}>Sin pedidos en este estado</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                            {pedidos.map((p) => (
+                                <PedidoCard key={p.id} pedido={p} onAvanzar={handleAvanzar} loading={avanzarPending} ingredientesMap={ingredientesMap} />
+                            ))}
+                        </div>
+                    )}
+                </div>
             ) : (
-                <div className="overflow-x-auto pb-2">
-                    <div className="grid grid-cols-4 gap-4" style={{ minWidth: "800px" }}>
+                /* ── Kanban 4 columnas ── */
+                <div className="pb-2">
+                    <div className="grid grid-cols-4 gap-4">
                     {COLUMNAS.map((col) => {
                         const peds = pedidosPorEstado(col.codigo);
                         return (
