@@ -3,7 +3,7 @@ import { useProductos } from "../../producto/hooks/useProducto";
 import { useUsuarios } from "../../usuarios/hooks/useUsuarios";
 import { usePedidos } from "../hooks/usePedidos";
 import type { Producto } from "../../../shared/types/index";
-import type { UsuarioRead, FormaPago, PedidoCreate } from "../types/index";
+import type { UsuarioReadConDireccion, FormaPago, PedidoCreate } from "../types/index";
 
 interface CrearPedidoModalProps {
     isOpen: boolean;

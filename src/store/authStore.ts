@@ -1,17 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { UsuarioRead } from "../shared/types";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
-export interface UsuarioRead {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    celular: string | null;
-    roles: string[];
-    deleted_at: string | null;
-}
 
 interface AuthState {
     accessToken: string | null;

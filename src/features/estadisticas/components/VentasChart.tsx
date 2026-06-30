@@ -1,6 +1,6 @@
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -34,26 +34,16 @@ export function VentasChart({ data, loading, error, onRetry }: Props) {
   return (
     <div style={{ width: "100%", height: 300 }}>
       <ResponsiveContainer>
-        <AreaChart data={chartData} margin={{ top: 10, right: 40, left: 10, bottom: 10 }}>
-          <defs>
-            <linearGradient id="colorVentas" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={C.primary} stopOpacity={0.3} />
-              <stop offset="95%" stopColor={C.primary} stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="colorPedidos" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={C.accent} stopOpacity={0.2} />
-              <stop offset="95%" stopColor={C.accent} stopOpacity={0} />
-            </linearGradient>
-          </defs>
+        <LineChart data={chartData} margin={{ top: 10, right: 40, left: 10, bottom: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={C.grid} />
           <XAxis dataKey="periodo" tick={{ fontSize: 11, fill: C.muted }} />
           <YAxis yAxisId="left" tick={{ fontSize: 11, fill: C.muted }} tickFormatter={(v) => Number(v) >= 1000 ? `$${(Number(v)/1000).toFixed(1)}k` : `$${Number(v).toFixed(0)}`} />
           <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: C.muted }} tickFormatter={(v) => Number(v).toFixed(0)} allowDecimals={false} />
           <Tooltip contentStyle={{ backgroundColor: C.card, border: `1px solid ${C.grid}`, borderRadius: 8, fontSize: 12, color: C.text }} />
           <Legend wrapperStyle={{ fontSize: 12, color: C.text }} />
-          <Area yAxisId="left" type="monotone" dataKey="total_ventas" stroke={C.primary} fill="url(#colorVentas)" strokeWidth={2} dot={{ fill: C.primary, r: 3 }} activeDot={{ r: 5 }} name="Total ($)" connectNulls />
-          <Area yAxisId="right" type="monotone" dataKey="cantidad_pedidos" stroke={C.accent} fill="url(#colorPedidos)" strokeWidth={2} dot={{ fill: C.accent, r: 3 }} activeDot={{ r: 5 }} name="Pedidos" connectNulls />
-        </AreaChart>
+          <Line yAxisId="left" type="monotone" dataKey="total_ventas" stroke={C.primary} strokeWidth={2} dot={{ fill: C.primary, r: 3 }} activeDot={{ r: 5 }} name="Total ($)" connectNulls />
+          <Line yAxisId="right" type="monotone" dataKey="cantidad_pedidos" stroke={C.accent} strokeWidth={2} dot={{ fill: C.accent, r: 3 }} activeDot={{ r: 5 }} name="Pedidos" connectNulls />
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );

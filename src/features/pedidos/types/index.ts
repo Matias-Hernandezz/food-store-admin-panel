@@ -35,6 +35,7 @@ export interface DireccionEntrega {
     es_principal: boolean;
 }
 export interface DetallePedido {
+    id?: number;
     producto_id: number;
     cantidad: number;
     nombre_snapshot: string;
@@ -73,22 +74,12 @@ export interface PedidoCreate {
         cantidad: number;
     }[];
 }
-export interface UsuarioCreate {
-    nombre: string;
-    apellido: string;
-    email: string;
-    celular?: string;
-    password: string;
-}
 
-export interface UsuarioRead {
-    id: number;
-    nombre: string;
-    apellido: string;
-    email: string;
-    celular: string | null;
-    roles: string[];
-    deleted_at: string | null;
+// UsuarioRead viene de shared/types/. Esta versión extiende con direcciones
+// solo cuando el endpoint de pedidos incluye ese campo embebido.
+export type { UsuarioRead } from "../../../shared/types";
+
+export interface UsuarioReadConDireccion extends UsuarioRead {
     direcciones?: DireccionEntrega[];
 }
 

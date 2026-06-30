@@ -1,7 +1,7 @@
 import { useQuery, QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productoApi } from "../api/producto.actions";
 import { useUIStore } from "../../../store/uiStore";
-import type { ProductoCreate, ProductoUpdate } from "../../../shared/types";
+import type { Producto, ProductoCreate, ProductoUpdate, PaginatedResponse } from "../../../shared/types";
 import type { AxiosError } from "axios";
 
 const PRODUCTO_KEY = ["productos"] as const;
@@ -94,11 +94,11 @@ export function useProductos({
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: PRODUCTO_KEY });
       const previous = queryClient.getQueriesData({ queryKey: PRODUCTO_KEY })
-        .filter(([, d]) => d != null) as [QueryKey, any][];
+        .filter(([, d]) => d != null) as [QueryKey, PaginatedResponse<Producto>][];
       previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, {
           ...data,
-          data: data.data.map((p: any) =>
+          data: data.data.map((p: Producto) =>
             p.id === id ? { ...p, deleted_at: new Date().toISOString() } : p
           ),
         });
@@ -110,7 +110,7 @@ export function useProductos({
     },
     onError: (err: AxiosError<{ detail: string }>, _id, context) => {
       if (context?.previous) {
-        context.previous.forEach(([key, data]: any) => queryClient.setQueryData(key, data));
+        context.previous.forEach(([key, data]: PaginatedResponse<Producto>) => queryClient.setQueryData(key, data));
       }
       const status = err?.response?.status;
       const detail = err?.response?.data?.detail || err?.message || "";
@@ -129,11 +129,11 @@ export function useProductos({
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: PRODUCTO_KEY });
       const previous = queryClient.getQueriesData({ queryKey: PRODUCTO_KEY })
-        .filter(([, d]) => d != null) as [QueryKey, any][];
+        .filter(([, d]) => d != null) as [QueryKey, PaginatedResponse<Producto>][];
       previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, {
           ...data,
-          data: data.data.map((p: any) =>
+          data: data.data.map((p: Producto) =>
             p.id === id ? { ...p, deleted_at: null } : p
           ),
         });
@@ -145,7 +145,7 @@ export function useProductos({
     },
     onError: (err: AxiosError<{ detail: string }>, _id, context) => {
       if (context?.previous) {
-        context.previous.forEach(([key, data]: any) => queryClient.setQueryData(key, data));
+        context.previous.forEach(([key, data]: PaginatedResponse<Producto>) => queryClient.setQueryData(key, data));
       }
       const status = err?.response?.status;
       const detail = err?.response?.data?.detail || err?.message || "";

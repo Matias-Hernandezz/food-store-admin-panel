@@ -34,17 +34,18 @@ interface Props {
     desde?: string;
     hasta?: string;
     search?: string;
+    estado?: string;
     enabled?: boolean;
 }
 
-export function usePedidos({ desde, hasta, search, enabled = true }: Props = {}) {
+export function usePedidos({ desde, hasta, search, estado, enabled = true }: Props = {}) {
     const queryClient = useQueryClient();
     const addToast = useUIStore((s) => s.addToast);
 
     // --- QUERIES ---
     const pedidosList = useQuery({
-        queryKey: ["pedidos", { desde, hasta, search }],
-        queryFn: () => pedidosApi.getAll(0, 50, desde, hasta, search),
+        queryKey: ["pedidos", { desde, hasta, search, estado }],
+        queryFn: () => pedidosApi.getAll(0, 50, desde, hasta, search, estado),
         refetchInterval: 30000,
         enabled,
     });

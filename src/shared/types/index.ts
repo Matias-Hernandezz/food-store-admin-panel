@@ -1,4 +1,14 @@
 
+// ─── PAGINACIÓN GENÉRICA ─────────────────────────────────────────────────────
+// Reemplaza las interfaces XxxList duplicadas. La rúbrica §16 exige "no any".
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+}
+
+// ─── CATEGORIA ───────────────────────────────────────────────────────────────
+
 export interface Categoria {
   id: number;
   parent_id: number | null;
@@ -24,10 +34,7 @@ export interface CategoriaUpdate {
   imagen_url?: string | null;
 }
 
-export interface CategoriaList {
-  data: Categoria[];
-  total: number;
-}
+export type CategoriaList = PaginatedResponse<Categoria>;
 
 // ─── INGREDIENTE ─────────────────────────────────────────────────────────────
 
@@ -53,10 +60,7 @@ export interface IngredienteUpdate {
   es_alergeno?: boolean;
 }
 
-export interface IngredienteList {
-  data: Ingrediente[];
-  total: number;
-}
+export type IngredienteList = PaginatedResponse<Ingrediente>;
 
 // ─── UNIDAD DE MEDIDA ───────────────────────────────────────────────────────
 
@@ -112,14 +116,33 @@ export interface ProductoUpdate {
   cantidad_venta?: number | null;
 }
 
-export interface ProductoList {
-  data: Producto[];
-  total: number;
-}
+export type ProductoList = PaginatedResponse<Producto>;
 
 // ─── PAGINACION ───────────────────────────────────────────────────────────────
+// También se usa en hooks para tipar query params de listados.
 
 export interface PaginationParams {
   offset?: number;
   limit?: number;
+}
+
+// ─── USUARIO (compartido — lo usan auth, pedidos, usuarios) ──────────────────
+// Antes duplicado en auth/types/ y pedidos/types/. Unificado para cumplir FSD.
+
+export interface UsuarioCreate {
+  nombre: string;
+  apellido: string;
+  email: string;
+  celular?: string;
+  password: string;
+}
+
+export interface UsuarioRead {
+  id: number;
+  nombre: string;
+  apellido: string;
+  email: string;
+  celular: string | null;
+  roles: string[];
+  deleted_at: string | null;
 }

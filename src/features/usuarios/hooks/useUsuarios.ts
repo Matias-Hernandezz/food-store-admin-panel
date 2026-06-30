@@ -4,7 +4,7 @@ import { usuariosApi } from "../api/usuariosApi";
 import { authApi } from "../../auth/api/authApi";
 import { useUIStore } from "../../../store/uiStore";
 import { useAuthStore } from "../../../store/authStore";
-import type { UsuarioCreate } from "../../auth/types";
+import type { UsuarioCreate } from "../../../shared/types";
 import type { AxiosError } from "axios";
 
 interface Props {

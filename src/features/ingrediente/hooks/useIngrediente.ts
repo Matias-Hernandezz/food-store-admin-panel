@@ -1,7 +1,7 @@
 import { useQuery, QueryKey, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ingredienteApi } from "../api/ingrediente.actions";
 import { useUIStore } from "../../../store/uiStore";
-import type { IngredienteCreate, IngredienteUpdate } from "../../../shared/types";
+import type { Ingrediente, IngredienteCreate, IngredienteUpdate, PaginatedResponse } from "../../../shared/types";
 import type { AxiosError } from "axios";
 
 const INGREDIENTE_KEY = ["ingredientes"] as const;
@@ -83,11 +83,11 @@ export function useIngredientes({
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: INGREDIENTE_KEY });
       const previous = queryClient.getQueriesData({ queryKey: INGREDIENTE_KEY })
-        .filter(([, d]) => d != null) as [QueryKey, any][];
+        .filter(([, d]) => d != null) as [QueryKey, PaginatedResponse<Ingrediente>][];
       previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, {
           ...data,
-          data: data.data.map((i: any) =>
+          data: data.data.map((i: Ingrediente) =>
             i.id === id ? { ...i, deleted_at: new Date().toISOString() } : i
           ),
         });
@@ -99,7 +99,7 @@ export function useIngredientes({
     },
     onError: (err: AxiosError<{ detail: string }>, _id, context) => {
       if (context?.previous) {
-        context.previous.forEach(([key, data]: any) => queryClient.setQueryData(key, data));
+        context.previous.forEach(([key, data]: PaginatedResponse<Ingrediente>) => queryClient.setQueryData(key, data));
       }
       const status = err?.response?.status;
       const detail = err?.response?.data?.detail || err?.message || "";
@@ -118,11 +118,11 @@ export function useIngredientes({
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: INGREDIENTE_KEY });
       const previous = queryClient.getQueriesData({ queryKey: INGREDIENTE_KEY })
-        .filter(([, d]) => d != null) as [QueryKey, any][];
+        .filter(([, d]) => d != null) as [QueryKey, PaginatedResponse<Ingrediente>][];
       previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, {
           ...data,
-          data: data.data.map((i: any) =>
+          data: data.data.map((i: Ingrediente) =>
             i.id === id ? { ...i, deleted_at: null } : i
           ),
         });
@@ -134,7 +134,7 @@ export function useIngredientes({
     },
     onError: (err: AxiosError<{ detail: string }>, _id, context) => {
       if (context?.previous) {
-        context.previous.forEach(([key, data]: any) => queryClient.setQueryData(key, data));
+        context.previous.forEach(([key, data]: PaginatedResponse<Ingrediente>) => queryClient.setQueryData(key, data));
       }
       const status = err?.response?.status;
       const detail = err?.response?.data?.detail || err?.message || "";

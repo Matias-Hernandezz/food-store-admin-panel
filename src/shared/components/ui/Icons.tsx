@@ -79,6 +79,12 @@ export const Icons = {
 
   // ── UI ──────────────────────────────────────────────────────────────────
 
+  Menu: ({ size = 24, ...props }: IconProps) => (
+    <svg {...props} width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+    </svg>
+  ),
+
   ExpandLess: ({ size = 24, ...props }: IconProps) => (
     <svg {...props} width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
       <path d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14l-6-6z" />

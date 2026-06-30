@@ -12,7 +12,7 @@ import { UsuariosPage } from "./features/usuarios/pages/UsuariosPage";
 import { PedidosKanbanPage } from "./features/pedidos/pages/PedidosKanbanPage";
 import { LoginPage } from "./features/auth/pages/LoginPage";
 import { UnauthorizedPage } from "./features/auth/pages/UnauthorizedPage";
-import { DashboardPage } from "./features/panel/pages/DashboardPage";
+import { DashboardPage } from "./features/estadisticas/pages/DashboardPage";
 import { EstadisticasPage } from "./features/pedidos/pages/EstadisticasPage";
 import { CajeroPedidosPage } from "./features/pedidos/pages/CajeroPedidosPage";
 import { CocinaPage } from "./features/pedidos/pages/CocinaPage";
