@@ -34,6 +34,15 @@ export interface IngresosItem {
   cantidad: number;
 }
 
+export interface AhorroDeliveryResponse {
+  desde: string;
+  hasta: string;
+  ventas_periodo: number;
+  pedidos_periodo: number;
+  comision_pct: number;
+  ahorro_estimado: number;
+}
+
 // ─── Hook Unificado ─────────────────────────────────────────────────────
 
 const BASE = "/api/v1/estadisticas";
@@ -95,6 +104,15 @@ export function useEstadisticas({
     enabled: enabled && !!desde && !!hasta,
   });
 
+  const ahorroDelivery = useQuery({
+    queryKey: ["estadisticas", "ahorro-delivery", desde, hasta],
+    queryFn: () =>
+      api.get<AhorroDeliveryResponse>(`${BASE}/ahorro-delivery`, {
+        params: { desde, hasta },
+      }).then((r) => r.data),
+    enabled: enabled && !!desde && !!hasta,
+  });
+
   return {
     resumen: resumen.data,
     resumenLoading: resumen.isLoading,
@@ -115,5 +133,7 @@ export function useEstadisticas({
     ingresosLoading: ingresos.isLoading,
     ingresosError: ingresos.isError,
     ingresosRefetch: ingresos.refetch,
+    ahorroDelivery: ahorroDelivery.data,
+    ahorroDeliveryLoading: ahorroDelivery.isLoading,
   };
 }

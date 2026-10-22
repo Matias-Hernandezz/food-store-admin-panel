@@ -28,7 +28,7 @@ export function DashboardPage() {
   const [desde, setDesde] = useState(() => daysAgoStr(14));
   const [hasta, setHasta] = useState(() => todayStr());
 
-  const { resumen, ventas, ventasLoading: lV, ventasError: eV, ventasRefetch: rV, productosTop, productosTopLoading: lT, productosTopError: eT, productosTopRefetch: rT, pedidosPorEstado: pedidosEstado, pedidosPorEstadoLoading: lE, pedidosPorEstadoError: eE, pedidosPorEstadoRefetch: rE, ingresos, ingresosLoading: lI, ingresosError: eI, ingresosRefetch: rI } = useEstadisticas({ desde, hasta });
+  const { resumen, ventas, ventasLoading: lV, ventasError: eV, ventasRefetch: rV, productosTop, productosTopLoading: lT, productosTopError: eT, productosTopRefetch: rT, pedidosPorEstado: pedidosEstado, pedidosPorEstadoLoading: lE, pedidosPorEstadoError: eE, pedidosPorEstadoRefetch: rE, ingresos, ingresosLoading: lI, ingresosError: eI, ingresosRefetch: rI, ahorroDelivery, ahorroDeliveryLoading } = useEstadisticas({ desde, hasta });
 
   return (
     <div style={{ backgroundColor: C.bg, minHeight: "100vh" }}>
@@ -56,6 +56,25 @@ export function DashboardPage() {
           <KPICard label="Ticket Promedio" value={resumen ? `$${Number(resumen.ticket_promedio).toFixed(2)}` : "—"} icon={<Icons.ShoppingBag width={20} height={20} />} accentColor="#0f766e" accentBg="#f0fdfa" />
           <KPICard label="Pedidos Activos" value={resumen ? String(resumen.pedidos_activos) : "—"} icon={<Icons.RestaurantMenu width={20} height={20} />} accentColor="#d97706" accentBg="#fffbeb" />
           <KPICard label="Ingresos del Mes" value={resumen ? `$${Number(resumen.mes_actual).toFixed(2)}` : "—"} icon={<Icons.Payments width={20} height={20} />} accentColor="#7c3aed" accentBg="#f5f3ff" />
+        </div>
+
+        <div
+          className="p-6 rounded-xl border mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          style={{ backgroundColor: "#ecfdf5", borderColor: "#a7f3d0", boxShadow: C.shadow }}
+        >
+          <div>
+            <h3 className="text-lg font-bold" style={{ color: "#065f46" }}>Ahorro estimado vs. apps de delivery</h3>
+            <p className="text-sm mt-1" style={{ color: "#047857" }}>
+              {ahorroDeliveryLoading
+                ? "Calculando…"
+                : ahorroDelivery
+                  ? `En el período seleccionado, con ${Number(ahorroDelivery.comision_pct)}% de comisión hipotética.`
+                  : "Sin datos en el período."}
+            </p>
+          </div>
+          <p className="text-3xl font-bold tabular-nums" style={{ color: "#059669" }}>
+            {ahorroDelivery ? `$${Number(ahorroDelivery.ahorro_estimado).toLocaleString("es-AR", { minimumFractionDigits: 2 })}` : "—"}
+          </p>
         </div>
 
         {/* Ventas */}
