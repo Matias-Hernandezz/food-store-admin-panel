@@ -13,6 +13,9 @@ const PANEL_ITEMS = [
   { to: "/admin/usuarios", label: "Usuarios", icon: <Icons.Usuarios width={18} height={18} />, required: [ROLE.OWNER] },
   { to: "/admin/integraciones", label: "Integraciones", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER] },
   { to: "/admin/horarios", label: "Horarios", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
+  { to: "/admin/zonas-envio", label: "Zonas envío", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
+  { to: "/admin/caja", label: "Caja", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER, ROLE.CASHIER] },
+  { to: "/admin/facturacion", label: "Facturación", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER] },
 ];
 
 const NAV_ITEMS: { to: string; label: string; icon: ReactNode; required: string[] }[] = [

@@ -6,7 +6,7 @@ import { playNewOrderNotification } from "../utils/orderNotificationSound";
 
 const MAX_RETRIES = 10;
 const BASE_DELAY = 1000;
-const POLL_FALLBACK_MS = 30_000;
+const POLL_FALLBACK_MS = 15_000;
 
 const WS_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000")
     .replace("http://", "ws://")
@@ -174,11 +174,13 @@ export function useAdminOrdersFeed({ enabled = true }: { enabled?: boolean } = {
 
     const status = useWSStore((s) => s.status);
     useEffect(() => {
-        if (status !== "error" || !enabled) return;
+        if (!enabled) return;
+        if (status === "connected") return;
 
         const id = window.setInterval(() => {
             queryClient.invalidateQueries({ queryKey: ["pedidos"] });
             queryClient.invalidateQueries({ queryKey: ["pedidos", "cocina"] });
+            queryClient.invalidateQueries({ queryKey: ["estadisticas"] });
         }, POLL_FALLBACK_MS);
 
         return () => window.clearInterval(id);

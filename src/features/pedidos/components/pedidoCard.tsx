@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { facturacionApi } from "../../facturacion/api/facturacionApi";
+import { useUIStore } from "../../../store/uiStore";
 import type { Pedido } from "../types/index";
 import { ESTADO_LABEL, ESTADO_COLOR, transicionesSiguientes } from "../hooks/usePedidos";
 
@@ -9,8 +12,20 @@ interface Props {
     ingredientesMap?: Map<number, string>;
 }
 
+const CLIENT_APP_URL = (import.meta.env.VITE_CLIENT_APP_URL as string | undefined)?.replace(/\/$/, "") ?? "http://localhost:5174";
+
 export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Props) {
+    const addToast = useUIStore((s) => s.addToast);
+    const emitirFactura = useMutation({
+        mutationFn: () => facturacionApi.emitir(pedido.id),
+        onSuccess: (c) => addToast({ type: "success", message: `CAE ${c.cae}` }),
+        onError: () => addToast({ type: "error", message: "No se pudo emitir comprobante" }),
+    });
     const siguientes = transicionesSiguientes(pedido.tipo_pedido ?? "DELIVERY", pedido.estado_codigo);
+    const riderUrl =
+        pedido.tipo_pedido === "DELIVERY" && pedido.rider_token
+            ? `${CLIENT_APP_URL}/repartidor/${pedido.rider_token}`
+            : null;
     const [mostrarMotivo, setMostrarMotivo] = useState(false);
     const [motivoCancel, setMotivoCancel] = useState("");
 
@@ -38,6 +53,29 @@ export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Prop
                     {ESTADO_LABEL[pedido.estado_codigo]}
                 </span>
             </div>
+
+            {riderUrl && (
+                <div className="mb-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
+                    <p className="text-[10px] font-bold text-blue-800 uppercase tracking-widest mb-2">
+                        🛵 App repartidor
+                    </p>
+                    <a
+                        href={riderUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-semibold text-blue-700 underline break-all"
+                    >
+                        Abrir en el celular del repartidor
+                    </a>
+                    <button
+                        type="button"
+                        className="mt-2 block text-[11px] font-medium text-blue-600 hover:underline"
+                        onClick={() => navigator.clipboard.writeText(riderUrl)}
+                    >
+                        Copiar link
+                    </button>
+                </div>
+            )}
 
             {pedido.direccion && (
                 <div className="mb-3 p-3 rounded-xl bg-orange-50 border border-orange-100">
@@ -78,6 +116,17 @@ export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Prop
                     </div>
                 ))}
             </div>
+
+            {pedido.estado_codigo !== "CANCELADO" && (
+                <button
+                    type="button"
+                    disabled={emitirFactura.isPending}
+                    onClick={() => emitirFactura.mutate()}
+                    className="mb-3 text-xs font-semibold text-[#2d1e0f] underline disabled:opacity-50"
+                >
+                    {emitirFactura.isPending ? "Emitiendo factura…" : "Emitir factura (mock/ARCA)"}
+                </button>
+            )}
 
             <div className="flex justify-between text-sm font-bold pt-2 mb-4" style={{ borderTop: "1px solid #E5E2DA" }}>
                 <span style={{ color: "#2d1e0f" }}>Total</span>

@@ -57,6 +57,7 @@ export interface Pedido {
     total: number;
     notas: string | null;
     created_at: string;
+    rider_token?: string | null;
     detalles: DetallePedido[];
     direccion?: DireccionEntrega | null;
 }
