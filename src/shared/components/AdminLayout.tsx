@@ -12,6 +12,7 @@ const PANEL_ITEMS = [
   { to: "/admin/panel",   label: "Panel",    icon: <Icons.Dashboard width={18} height={18} />, required: [...STAFF_ORDER_ROLES] },
   { to: "/admin/usuarios", label: "Usuarios", icon: <Icons.Usuarios width={18} height={18} />, required: [ROLE.OWNER] },
   { to: "/admin/integraciones", label: "Integraciones", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER] },
+  { to: "/admin/horarios", label: "Horarios", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
 ];
 
 const NAV_ITEMS: { to: string; label: string; icon: ReactNode; required: string[] }[] = [
