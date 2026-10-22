@@ -3,13 +3,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useUsuarios } from "../hooks/useUsuarios";
 import { usuariosApi } from "../api/usuariosApi";
 import { Icons } from "../../../shared/components/ui/Icons";
-
-const ROLES = ["ADMIN", "STOCK", "PEDIDOS", "CLIENT"];
+import { ASSIGNABLE_ROLES, ROLE_LABELS } from "../../../shared/roles";
 
 const ROL_COLOR: Record<string, React.CSSProperties> = {
-  ADMIN: { backgroundColor: "#fee2e2", color: "#991b1b" },
+  OWNER: { backgroundColor: "#fee2e2", color: "#991b1b" },
   STOCK: { backgroundColor: "#dbeafe", color: "#1e40af" },
-  PEDIDOS: { backgroundColor: "#ede9fe", color: "#5b21b6" },
+  KITCHEN: { backgroundColor: "#fef3c7", color: "#92400e" },
+  CASHIER: { backgroundColor: "#ede9fe", color: "#5b21b6" },
   CLIENT: { backgroundColor: "#dcfce7", color: "#166534" },
 };
 
@@ -146,7 +146,7 @@ export function UsuariosPage() {
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: "#9a8070" }}>Roles</label>
                 <div className="flex gap-1.5 flex-wrap">
-                  {ROLES.map((rol) => {
+                  {ASSIGNABLE_ROLES.map((rol) => {
                     const selected = rolesSeleccionados.includes(rol);
                     return (
                       <button
@@ -160,7 +160,7 @@ export function UsuariosPage() {
                           color: selected ? (ROL_COLOR[rol]?.color ?? "#6b5a4e") : "#9a8070",
                         }}
                       >
-                        {selected ? `✓ ${rol}` : rol}
+                        {selected ? `✓ ${ROLE_LABELS[rol] ?? rol}` : ROLE_LABELS[rol] ?? rol}
                       </button>
                     );
                   })}
@@ -204,14 +204,16 @@ export function UsuariosPage() {
                       <span key={r} onClick={() => quitar({ id: u.id, rol: r })} title="Click para quitar"
                         className="text-xs font-bold px-2 py-0.5 rounded-full cursor-pointer transition-opacity hover:opacity-70"
                         style={ROL_COLOR[r] ?? { backgroundColor: "#E5E2DA", color: "#6b5a4e" }}>
-                        {r} ✕
+                        {ROLE_LABELS[r] ?? r} ✕
                       </span>
                     ))}
                     <select onChange={(e) => { if (e.target.value) { asignar({ id: u.id, rol: e.target.value }); e.target.value = ""; } }}
                       className="text-xs rounded-full px-2 py-0.5 cursor-pointer focus:outline-none"
                       style={{ border: "1px dashed #E5E2DA", color: "#9a8070", backgroundColor: "#fff" }}>
                       <option value="">+ rol</option>
-                      {ROLES.filter((r) => !u.roles.includes(r)).map((r) => <option key={r} value={r}>{r}</option>)}
+                      {ASSIGNABLE_ROLES.filter((r) => !u.roles.includes(r)).map((r) => (
+                        <option key={r} value={r}>{ROLE_LABELS[r] ?? r}</option>
+                      ))}
                     </select>
                   </div>
                 </td>

@@ -6,20 +6,22 @@ import { useUIStore } from "../../store/uiStore";
 import { useAdminOrdersFeed } from "../hooks/useAdminOrdersFeed";
 import { Icons } from "./ui/Icons";
 import { ConnectionBadge } from "./ConnectionBadge";
+import { ROLE, STAFF_ORDER_ROLES } from "../roles";
 
 const PANEL_ITEMS = [
-  { to: "/admin/panel",   label: "Panel",    icon: <Icons.Dashboard width={18} height={18} />, required: ["ADMIN", "PEDIDOS"] },
-  { to: "/admin/usuarios", label: "Usuarios", icon: <Icons.Usuarios width={18} height={18} />, required: ["ADMIN"] },
+  { to: "/admin/panel",   label: "Panel",    icon: <Icons.Dashboard width={18} height={18} />, required: [...STAFF_ORDER_ROLES] },
+  { to: "/admin/usuarios", label: "Usuarios", icon: <Icons.Usuarios width={18} height={18} />, required: [ROLE.OWNER] },
+  { to: "/admin/integraciones", label: "Integraciones", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER] },
 ];
 
 const NAV_ITEMS: { to: string; label: string; icon: ReactNode; required: string[] }[] = [
-  { to: "/admin/pedidos",     label: "Pedidos",      icon: <Icons.Pedidos width={18} height={18} />, required: ["ADMIN", "PEDIDOS"] },
+  { to: "/admin/pedidos",     label: "Pedidos",      icon: <Icons.Pedidos width={18} height={18} />, required: [...STAFF_ORDER_ROLES] },
 ];
 
 const CATALOGO_ITEMS: { to: string; label: string; icon: ReactNode; required: string[] }[] = [
-  { to: "/admin/categorias",  label: "Categorías",    icon: <Icons.Categoria width={18} height={18} />, required: ["ADMIN", "STOCK"] },
-  { to: "/admin/productos",   label: "Productos",     icon: <Icons.Producto width={18} height={18} />, required: ["ADMIN", "STOCK"] },
-  { to: "/admin/ingredientes", label: "Ingredientes", icon: <Icons.Ingrediente width={18} height={18} />, required: ["ADMIN", "STOCK"] },
+  { to: "/admin/categorias",  label: "Categorías",    icon: <Icons.Categoria width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
+  { to: "/admin/productos",   label: "Productos",     icon: <Icons.Producto width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
+  { to: "/admin/ingredientes", label: "Ingredientes", icon: <Icons.Ingrediente width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
 ];
 
 const navLinkStyle = (isActive: boolean) =>
@@ -28,7 +30,7 @@ const navLinkStyle = (isActive: boolean) =>
     : { color: "#888", border: "1px solid transparent", borderRadius: 8, padding: "10px 12px", fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 12, transition: "all .15s" };
 
 export function AdminLayout({ children }: { children: ReactNode }) {
-  const { hasRole, isAdmin } = useUsuarios({ enabled: false });
+  const { hasRole, isOwner } = useUsuarios({ enabled: false });
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const { sidebarOpen, toggleSidebar } = useUIStore();
@@ -50,13 +52,13 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   }, []);
 
   const topItems = PANEL_ITEMS.filter((item) =>
-    isAdmin || item.required.some((role) => hasRole(role))
+    isOwner || item.required.some((role) => hasRole(role))
   );
   const visibleItems = NAV_ITEMS.filter((item) =>
-    isAdmin || item.required.some((role) => hasRole(role))
+    isOwner || item.required.some((role) => hasRole(role))
   );
   const catalogoItems = CATALOGO_ITEMS.filter((item) =>
-    isAdmin || item.required.some((role) => hasRole(role))
+    isOwner || item.required.some((role) => hasRole(role))
   );
 
   return (
@@ -158,8 +160,8 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                     key={rol}
                     className="text-[10px] font-bold uppercase px-2 py-0.5 rounded"
                     style={{
-                      backgroundColor: rol === "ADMIN" ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.06)",
-                      color: rol === "ADMIN" ? "#C87A2E" : "#888",
+                      backgroundColor: rol === ROLE.OWNER ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.06)",
+                      color: rol === ROLE.OWNER ? "#C87A2E" : "#888",
                     }}
                   >
                     {rol}

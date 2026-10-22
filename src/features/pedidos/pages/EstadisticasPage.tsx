@@ -39,7 +39,7 @@ export function EstadisticasPage() {
                 <div className="bg-white border border-[#E5E2DA] rounded-lg p-4">
                     <p className="text-sm" style={{ color: "#9a8070" }}>En preparacion</p>
                     <p className="text-2xl font-bold" style={{ color: "#2d1e0f" }}>
-                        {pedidos.filter((p) => p.estado_codigo === "EN_PREP").length}
+                        {pedidos.filter((p) => p.estado_codigo === "EN_PREPARACION").length}
                     </p>
                 </div>
             </div>

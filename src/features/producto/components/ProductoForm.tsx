@@ -38,7 +38,7 @@ export function ProductoForm({ open, onClose, editing, categorias, ingredientes 
       setForm({
         nombre: editing.nombre,
         descripcion: editing.descripcion ?? "",
-        precio_base: parseFloat(editing.precio_base),
+        precio_base: Number(editing.precio_base),
         imagenes_url: editing.imagenes_url ?? [],
         stock_cantidad: editing.stock_cantidad,
         disponible: editing.disponible,

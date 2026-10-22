@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "../../store/authStore";
+import { TENANT_SLUG } from "../config/tenantConfig";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -14,6 +15,9 @@ api.interceptors.request.use((config) => {
     const token = useAuthStore.getState().accessToken;
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (TENANT_SLUG) {
+        config.headers["X-Tenant-Slug"] = TENANT_SLUG;
     }
     return config;
 });

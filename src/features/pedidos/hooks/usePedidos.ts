@@ -2,33 +2,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { pedidosApi } from "../api/pedidosApi";
 import { useUIStore } from "../../../store/uiStore";
-import type { PedidoCreate, DireccionCreate, DireccionRead } from "../types/index";
+import type { PedidoCreate, DireccionCreate } from "../types/index";
 import type { AxiosError } from "axios";
 
-// Estados en orden FSM
-export const ESTADOS_FSM: Record<string, string[]> = {
-    PENDIENTE: ["CONFIRMADO", "CANCELADO"],
-    CONFIRMADO: ["EN_PREP", "CANCELADO"],
-    EN_PREP: ["ENTREGADO", "CANCELADO"],
-    ENTREGADO: [],
-    CANCELADO: [],
-};
+import { ESTADO_COLOR, ESTADO_LABEL, ESTADOS_FSM_DELIVERY, transicionesSiguientes } from "../pedidoEstados";
 
-export const ESTADO_LABEL: Record<string, string> = {
-    PENDIENTE: "Pendiente",
-    CONFIRMADO: "Confirmado",
-    EN_PREP: "En preparacion",
-    ENTREGADO: "Entregado",
-    CANCELADO: "Cancelado",
-};
+export { ESTADO_COLOR, ESTADO_LABEL, transicionesSiguientes };
 
-export const ESTADO_COLOR: Record<string, string> = {
-    PENDIENTE: "bg-yellow-100 text-yellow-800",
-    CONFIRMADO: "bg-blue-100 text-blue-800",
-    EN_PREP: "bg-orange-100 text-orange-800",
-    ENTREGADO: "bg-green-100 text-green-800",
-    CANCELADO: "bg-red-100 text-red-800",
-};
+/** Compat kanban: unión de transiciones envío (más completa) */
+export const ESTADOS_FSM = ESTADOS_FSM_DELIVERY;
 
 interface Props {
     desde?: string;

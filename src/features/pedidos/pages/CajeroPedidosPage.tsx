@@ -45,7 +45,7 @@ export function CajeroPedidosPage() {
 
     const pedidos = data?.data ?? [];
     const filtrados = filtro === "TODOS" ? pedidos : pedidos.filter((p) => p.estado_codigo === filtro);
-    const FILTROS = ["TODOS", "PENDIENTE", "CONFIRMADO", "EN_PREP", "ENTREGADO", "CANCELADO"];
+    const FILTROS = ["TODOS", "PENDIENTE", "CONFIRMADO", "EN_PREPARACION", "PREPARADO", "EN_CAMINO", "ENTREGADO", "CANCELADO"];
 
     if (isLoading) return (
         <div className="flex items-center justify-center h-64">

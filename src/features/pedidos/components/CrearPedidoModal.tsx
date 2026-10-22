@@ -3,7 +3,8 @@ import { useProductos } from "../../producto/hooks/useProducto";
 import { useUsuarios } from "../../usuarios/hooks/useUsuarios";
 import { usePedidos } from "../hooks/usePedidos";
 import type { Producto } from "../../../shared/types/index";
-import type { UsuarioReadConDireccion, FormaPago, PedidoCreate } from "../types/index";
+import type { PedidoCreate } from "../types/index";
+import type { DireccionEntrega } from "../types/index";
 
 interface CrearPedidoModalProps {
     isOpen: boolean;
@@ -48,7 +49,8 @@ export function CrearPedidoModal({ isOpen, onClose, onSubmit, isPending }: Crear
     const direccionesDelUsuario = useMemo(() => {
         if (!usuarioId) return [];
         const usuarioSeleccionado = usuarios.find((u) => Number(u.id) === Number(usuarioId));
-        return usuarioSeleccionado?.direcciones ?? [];
+        const extra = usuarioSeleccionado as { direcciones?: DireccionEntrega[] } | undefined;
+        return extra?.direcciones ?? [];
     }, [usuarioId, usuarios]);
 
     const handleCambiarCantidad = (productoId: number, cambio: number) => {
@@ -156,7 +158,7 @@ export function CrearPedidoModal({ isOpen, onClose, onSubmit, isPending }: Crear
                                 className="w-full rounded-lg border border-gray-300 p-2.5 bg-gray-50 text-sm disabled:bg-gray-100 disabled:text-gray-400"
                             >
                                 <option value="">🏠 Retiro en Local (Sin envío)</option>
-                                {direccionesDelUsuario.map((dir) => (
+                                {direccionesDelUsuario.map((dir: DireccionEntrega) => (
                                     <option key={dir.id} value={dir.id}>
                                         📍 {dir.linea1} {dir.linea2 ? `(${dir.linea2})` : ""} - {dir.ciudad}
                                     </option>

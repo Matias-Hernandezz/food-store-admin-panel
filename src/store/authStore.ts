@@ -32,7 +32,7 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             accessToken: null,
             user: null,
             isAuthenticated: false,

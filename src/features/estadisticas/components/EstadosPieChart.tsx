@@ -3,8 +3,14 @@ import type { PedidosEstadoItem } from "../hooks/useEstadisticas";
 
 interface Props { data: PedidosEstadoItem[]; loading: boolean; error: boolean; onRetry?: () => void; }
 
-const COLORS: Record<string, string> = { PENDIENTE: "#eab308", CONFIRMADO: "#3b82f6", EN_PREP: "#f59e0b", ENTREGADO: "#059669", CANCELADO: "#dc2626" };
-const LABELS: Record<string, string> = { PENDIENTE: "Pendiente", CONFIRMADO: "Confirmado", EN_PREP: "En Prep.", ENTREGADO: "Entregado", CANCELADO: "Cancelado" };
+const COLORS: Record<string, string> = {
+  PENDIENTE: "#eab308", CONFIRMADO: "#3b82f6", EN_PREPARACION: "#f59e0b",
+  PREPARADO: "#d97706", EN_CAMINO: "#6366f1", ENTREGADO: "#059669", CANCELADO: "#dc2626",
+};
+const LABELS: Record<string, string> = {
+  PENDIENTE: "Pendiente", CONFIRMADO: "Confirmado", EN_PREPARACION: "En prep.",
+  PREPARADO: "Preparado", EN_CAMINO: "En camino", ENTREGADO: "Entregado", CANCELADO: "Cancelado",
+};
 const C = { text: "#1e293b", muted: "#94a3b8", card: "#fff", grid: "#e2e8f0" };
 
 export function EstadosPieChart({ data, loading, error, onRetry }: Props) {

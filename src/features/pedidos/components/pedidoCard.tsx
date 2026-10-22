@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Pedido } from "../types/index";
-import { ESTADO_LABEL, ESTADO_COLOR, ESTADOS_FSM } from "../hooks/usePedidos";
+import { ESTADO_LABEL, ESTADO_COLOR, transicionesSiguientes } from "../hooks/usePedidos";
 
 interface Props {
     pedido: Pedido;
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Props) {
-    const siguientes = ESTADOS_FSM[pedido.estado_codigo] ?? [];
+    const siguientes = transicionesSiguientes(pedido.tipo_pedido ?? "DELIVERY", pedido.estado_codigo);
     const [mostrarMotivo, setMostrarMotivo] = useState(false);
     const [motivoCancel, setMotivoCancel] = useState("");
 

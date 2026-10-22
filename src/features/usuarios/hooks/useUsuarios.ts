@@ -17,8 +17,8 @@ interface Props {
 
 export function useUsuarios({
   id,
-  page = 0,
-  pageSize = 100,
+  page: _page = 0,
+  pageSize: _pageSize = 100,
   search,
   enabled = true,
 }: Props = {}) {
@@ -115,7 +115,7 @@ export function useUsuarios({
   const hasRole = (...roles: string[]) =>
     roles.some((r) => user?.roles?.includes(r)) ?? false;
 
-  const isAdmin = user?.roles?.includes("ADMIN") ?? false;
+  const isOwner = user?.roles?.includes("OWNER") ?? false;
 
   return {
     data: usuariosList.data,
@@ -132,6 +132,6 @@ export function useUsuarios({
     createUser: crearUsuario.mutateAsync,
     createUserPending: crearUsuario.isPending,
     hasRole,
-    isAdmin,
+    isOwner,
   };
 }

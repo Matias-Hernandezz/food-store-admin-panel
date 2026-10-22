@@ -99,7 +99,7 @@ export function useIngredientes({
     },
     onError: (err: AxiosError<{ detail: string }>, _id, context) => {
       if (context?.previous) {
-        context.previous.forEach(([key, data]: PaginatedResponse<Ingrediente>) => queryClient.setQueryData(key, data));
+        context.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       }
       const status = err?.response?.status;
       const detail = err?.response?.data?.detail || err?.message || "";
@@ -134,7 +134,7 @@ export function useIngredientes({
     },
     onError: (err: AxiosError<{ detail: string }>, _id, context) => {
       if (context?.previous) {
-        context.previous.forEach(([key, data]: PaginatedResponse<Ingrediente>) => queryClient.setQueryData(key, data));
+        context.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       }
       const status = err?.response?.status;
       const detail = err?.response?.data?.detail || err?.message || "";

@@ -9,7 +9,9 @@ interface IngredienteSimple { id: number; nombre: string };
 const COLUMNAS: { codigo: string; titulo: string }[] = [
     { codigo: "PENDIENTE", titulo: "Pendientes" },
     { codigo: "CONFIRMADO", titulo: "Confirmados" },
-    { codigo: "EN_PREP", titulo: "En Preparación" },
+    { codigo: "EN_PREPARACION", titulo: "En preparación" },
+    { codigo: "PREPARADO", titulo: "Preparados" },
+    { codigo: "EN_CAMINO", titulo: "En camino" },
     { codigo: "ENTREGADO", titulo: "Entregados" },
 ];
 
@@ -61,7 +63,9 @@ export function PedidosKanbanPage() {
     const ESTADO_DOT: Record<string, string> = {
         PENDIENTE: "#ca8a04",
         CONFIRMADO: "#2563eb",
-        EN_PREP: "#ea580c",
+        EN_PREPARACION: "#ea580c",
+        PREPARADO: "#d97706",
+        EN_CAMINO: "#4f46e5",
         ENTREGADO: "#16a34a",
         CANCELADO: "#dc2626",
     };
@@ -173,7 +177,7 @@ export function PedidosKanbanPage() {
                                 boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
                             }}
                         >
-                            {(["TODOS", "PENDIENTE", "CONFIRMADO", "EN_PREP", "ENTREGADO", "CANCELADO"] as const).map((codigo) => (
+                            {(["TODOS", "PENDIENTE", "CONFIRMADO", "EN_PREPARACION", "PREPARADO", "EN_CAMINO", "ENTREGADO", "CANCELADO"] as const).map((codigo) => (
                                 <button
                                     key={codigo}
                                     onClick={() => { setEstadoFiltro(codigo); setDropdownOpen(false); }}

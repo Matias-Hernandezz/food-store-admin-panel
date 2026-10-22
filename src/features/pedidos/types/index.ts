@@ -48,6 +48,7 @@ export interface Pedido {
     id: number;
     usuario_id: number;
     usuario_nombre?: string | null;
+    tipo_pedido: string;
     estado_codigo: string;
     forma_pago_codigo: string;
     subtotal: number;
@@ -77,6 +78,7 @@ export interface PedidoCreate {
 
 // UsuarioRead viene de shared/types/. Esta versión extiende con direcciones
 // solo cuando el endpoint de pedidos incluye ese campo embebido.
+import type { UsuarioRead } from "../../../shared/types";
 export type { UsuarioRead } from "../../../shared/types";
 
 export interface UsuarioReadConDireccion extends UsuarioRead {

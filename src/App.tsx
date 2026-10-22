@@ -16,6 +16,7 @@ import { DashboardPage } from "./features/estadisticas/pages/DashboardPage";
 import { EstadisticasPage } from "./features/pedidos/pages/EstadisticasPage";
 import { CajeroPedidosPage } from "./features/pedidos/pages/CajeroPedidosPage";
 import { CocinaPage } from "./features/pedidos/pages/CocinaPage";
+import { IntegracionesPage } from "./features/integraciones/pages/IntegracionesPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,7 +58,7 @@ export default function App() {
             <Route
               path="/admin/*"
               element={
-                <ProtectedRoute roles={["ADMIN", "PEDIDOS", "STOCK"]}>
+                <ProtectedRoute roles={["OWNER", "KITCHEN", "CASHIER", "STOCK"]}>
                   <AdminLayout>
                     <Routes>
                       <Route path="categorias" element={<CategoriasPage />} />
@@ -69,6 +70,7 @@ export default function App() {
                       <Route path="cajero" element={<CajeroPedidosPage />} />
                       <Route path="panel" element={<DashboardPage />} />
                       <Route path="estadisticas" element={<EstadisticasPage />} />
+                      <Route path="integraciones" element={<IntegracionesPage />} />
                     </Routes>
                   </AdminLayout>
                 </ProtectedRoute>

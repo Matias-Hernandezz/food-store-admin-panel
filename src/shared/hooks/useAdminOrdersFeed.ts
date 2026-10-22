@@ -2,9 +2,11 @@ import { useEffect, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWSStore } from "../../store/wsStore";
 import { useAuthStore } from "../../store/authStore";
+import { playNewOrderNotification } from "../utils/orderNotificationSound";
 
 const MAX_RETRIES = 10;
 const BASE_DELAY = 1000;
+const POLL_FALLBACK_MS = 30_000;
 
 const WS_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000")
     .replace("http://", "ws://")
@@ -89,6 +91,10 @@ export function useAdminOrdersFeed({ enabled = true }: { enabled?: boolean } = {
 
                 setLastEvent(event);
 
+                if (event.event === "NUEVO_PEDIDO") {
+                    playNewOrderNotification();
+                }
+
                 // Invalidar queries relevantes
                 queryClient.invalidateQueries({ queryKey: ["pedidos"] });
                 queryClient.invalidateQueries({ queryKey: ["pedidos", "cocina"] });
@@ -165,4 +171,16 @@ export function useAdminOrdersFeed({ enabled = true }: { enabled?: boolean } = {
             connect();
         }
     }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const status = useWSStore((s) => s.status);
+    useEffect(() => {
+        if (status !== "error" || !enabled) return;
+
+        const id = window.setInterval(() => {
+            queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+            queryClient.invalidateQueries({ queryKey: ["pedidos", "cocina"] });
+        }, POLL_FALLBACK_MS);
+
+        return () => window.clearInterval(id);
+    }, [status, enabled, queryClient]);
 }
