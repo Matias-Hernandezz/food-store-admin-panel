@@ -4,6 +4,7 @@ import { useProductos } from "../../producto/hooks/useProducto";
 import { usePedidos } from "../../pedidos/hooks/usePedidos";
 import { cajaApi } from "../api/cajaApi";
 import { useUIStore } from "../../../store/uiStore";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 export function CajaPage() {
     const addToast = useUIStore((s) => s.addToast);
@@ -36,7 +37,8 @@ export function CajaPage() {
             addToast({ type: "success", message: "Turno abierto" });
             queryClient.invalidateQueries({ queryKey: ["caja-turno"] });
         },
-        onError: () => addToast({ type: "error", message: "No se pudo abrir el turno" }),
+        onError: (err) =>
+            addToast({ type: "error", message: getApiErrorMessage(err, "No se pudo abrir el turno") }),
     });
 
     const cerrar = useMutation({
@@ -53,7 +55,8 @@ export function CajaPage() {
             queryClient.invalidateQueries({ queryKey: ["caja-turno"] });
             setEfectivoCierre("");
         },
-        onError: () => addToast({ type: "error", message: "No se pudo cerrar el turno" }),
+        onError: (err) =>
+            addToast({ type: "error", message: getApiErrorMessage(err, "No se pudo cerrar el turno") }),
     });
 
     const cargarPedido = useMutation({
@@ -70,7 +73,8 @@ export function CajaPage() {
             setCarrito({});
             queryClient.invalidateQueries({ queryKey: ["caja-turno"] });
         },
-        onError: () => addToast({ type: "error", message: "Error al crear pedido" }),
+        onError: (err) =>
+            addToast({ type: "error", message: getApiErrorMessage(err, "Error al crear pedido") }),
     });
 
     if (isLoading) {

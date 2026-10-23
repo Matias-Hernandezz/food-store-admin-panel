@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { uploadApi, type CloudinaryResponse } from "../api/uploadApi";
+import { getApiErrorMessage } from "../utils/apiError";
 
 /** Aplica transformaciones Cloudinary on-the-fly a la URL */
 function transformedUrl(url: string, w = 200, h = 200): string {
@@ -84,7 +85,7 @@ export function CloudinaryUpload({
                 onChange(updated);
             }
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : "Error al subir imagen");
+            setError(getApiErrorMessage(err, "No se pudo subir la imagen"));
         } finally {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -104,8 +105,8 @@ export function CloudinaryUpload({
         if (publicId) {
             try {
                 await uploadApi.delete(publicId);
-            } catch {
-                setError("No se pudo eliminar la imagen de Cloudinary");
+            } catch (err: unknown) {
+                setError(getApiErrorMessage(err, "No se pudo eliminar la imagen de Cloudinary"));
             }
         }
 

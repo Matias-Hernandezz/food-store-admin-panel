@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../../store/authStore";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 export function useLogin() {
     const login = useAuthStore((s) => s.login);
@@ -17,9 +18,7 @@ export function useLogin() {
             await login(email, password);
             navigate("/admin/panel", { replace: true });
         } catch (err: unknown) {
-            const detail = (err as { response?: { data?: { detail?: string } } })
-                ?.response?.data?.detail;
-            setError(detail ?? (err as Error).message ?? "Credenciales incorrectas");
+            setError(getApiErrorMessage(err, "Email o contraseña incorrectos"));
         } finally {
             setLoading(false);
         }

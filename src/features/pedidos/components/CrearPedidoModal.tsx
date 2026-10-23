@@ -5,6 +5,7 @@ import { usePedidos } from "../hooks/usePedidos";
 import type { Producto } from "../../../shared/types/index";
 import type { PedidoCreate } from "../types/index";
 import type { DireccionEntrega } from "../types/index";
+import { useUIStore } from "../../../store/uiStore";
 
 interface CrearPedidoModalProps {
     isOpen: boolean;
@@ -14,6 +15,8 @@ interface CrearPedidoModalProps {
 }
 
 export function CrearPedidoModal({ isOpen, onClose, onSubmit, isPending }: CrearPedidoModalProps) {
+    const addToast = useUIStore((s) => s.addToast);
+
     if (!isOpen) return null;
 
     // 1. LLAMADAS A HOOKS (Estructurados según tus nuevas definiciones)
@@ -79,11 +82,11 @@ export function CrearPedidoModal({ isOpen, onClose, onSubmit, isPending }: Crear
     const handleGuardar = (e: React.FormEvent) => {
         e.preventDefault();
         if (!usuarioId) {
-            alert("Por favor, seleccioná un cliente.");
+            addToast({ type: "error", message: "Seleccioná un cliente para el pedido" });
             return;
         }
         if (Object.keys(carrito).length === 0) {
-            alert("El carrito no puede estar vacío.");
+            addToast({ type: "error", message: "Agregá al menos un producto al carrito" });
             return;
         }
 

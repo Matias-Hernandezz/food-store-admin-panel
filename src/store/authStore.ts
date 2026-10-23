@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { UsuarioRead } from "../shared/types";
+import { messageFromHttpResponse } from "../shared/utils/apiError";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -23,8 +24,10 @@ async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
         ...options,
     });
     if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Error" }));
-        throw new Error(err.detail ?? `HTTP ${res.status}`);
+        const body = await res.json().catch(() => ({}));
+        const fallback =
+            res.status === 401 ? "Email o contraseña incorrectos" : "No se pudo completar la operación";
+        throw new Error(messageFromHttpResponse(res.status, body, fallback));
     }
     if (res.status === 204) return undefined as T;
     return res.json();

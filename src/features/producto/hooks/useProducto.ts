@@ -2,7 +2,7 @@ import { useQuery, QueryKey, useMutation, useQueryClient } from "@tanstack/react
 import { productoApi } from "../api/producto.actions";
 import { useUIStore } from "../../../store/uiStore";
 import type { Producto, ProductoCreate, ProductoUpdate, PaginatedResponse } from "../../../shared/types";
-import type { AxiosError } from "axios";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 const PRODUCTO_KEY = ["productos"] as const;
 
@@ -53,17 +53,8 @@ export function useProductos({
       queryClient.invalidateQueries({ queryKey: PRODUCTO_KEY });
       addToast({ type: "success", message: "Producto creado" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "El nombre ya está en uso") :
-          status === 422 ? (detail || "Datos inválidos") :
-            status === 403 ? "No tenés permisos para esta acción" :
-              status === 400 ? (detail || "Datos inválidos") :
-                !navigator.onLine ? "Sin conexión a internet" :
-                  (detail || "Error al crear el producto");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al crear el producto") });
     },
   });
 
@@ -74,18 +65,8 @@ export function useProductos({
       queryClient.invalidateQueries({ queryKey: PRODUCTO_KEY });
       addToast({ type: "success", message: "Producto actualizado" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "El nombre ya está en uso") :
-          status === 404 ? "Producto no encontrado" :
-            status === 422 ? (detail || "Datos inválidos") :
-              status === 403 ? "No tenés permisos para esta acción" :
-                status === 400 ? (detail || "Datos inválidos") :
-                  !navigator.onLine ? "Sin conexión a internet" :
-                    (detail || "Error al actualizar el producto");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al actualizar el producto") });
     },
   });
 
@@ -108,18 +89,11 @@ export function useProductos({
     onSuccess: () => {
       addToast({ type: "success", message: "Producto eliminado" });
     },
-    onError: (err: AxiosError<{ detail: string }>, _id, context) => {
+    onError: (err, _id, context) => {
       if (context?.previous) {
         context.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       }
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 404 ? "Producto no encontrado" :
-          status === 403 ? "No tenés permisos para esta acción" :
-            !navigator.onLine ? "Sin conexión a internet" :
-              (detail || "Error al eliminar el producto");
-      addToast({ type: "error", message: msg });
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al eliminar el producto") });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: PRODUCTO_KEY }),
   });
@@ -143,19 +117,11 @@ export function useProductos({
     onSuccess: () => {
       addToast({ type: "success", message: "Producto restaurado" });
     },
-    onError: (err: AxiosError<{ detail: string }>, _id, context) => {
+    onError: (err, _id, context) => {
       if (context?.previous) {
         context.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       }
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "Conflicto al restaurar") :
-          status === 404 ? "Producto no encontrado" :
-            status === 403 ? "No tenés permisos para esta acción" :
-              !navigator.onLine ? "Sin conexión a internet" :
-                (detail || "Error al restaurar el producto");
-      addToast({ type: "error", message: msg });
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al restaurar el producto") });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: PRODUCTO_KEY }),
   });

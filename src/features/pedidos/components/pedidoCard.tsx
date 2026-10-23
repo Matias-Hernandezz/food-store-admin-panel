@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { facturacionApi } from "../../facturacion/api/facturacionApi";
 import { useUIStore } from "../../../store/uiStore";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 import type { Pedido } from "../types/index";
 import { ESTADO_LABEL, ESTADO_COLOR, transicionesSiguientes } from "../hooks/usePedidos";
 
@@ -19,7 +20,8 @@ export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Prop
     const emitirFactura = useMutation({
         mutationFn: () => facturacionApi.emitir(pedido.id),
         onSuccess: (c) => addToast({ type: "success", message: `CAE ${c.cae}` }),
-        onError: () => addToast({ type: "error", message: "No se pudo emitir comprobante" }),
+        onError: (err) =>
+            addToast({ type: "error", message: getApiErrorMessage(err, "No se pudo emitir comprobante") }),
     });
     const siguientes = transicionesSiguientes(pedido.tipo_pedido ?? "DELIVERY", pedido.estado_codigo);
     const riderUrl =

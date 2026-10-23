@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { horariosApi, type HorarioDiaInput } from "../api/horariosApi";
 import { useUIStore } from "../../../store/uiStore";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 function toInputValue(t: string | null): string {
   if (!t) return "";
@@ -37,8 +38,8 @@ export function HorariosPage() {
       addToast({ type: "success", message: "Horarios guardados" });
       queryClient.invalidateQueries({ queryKey: ["config-horarios"] });
     },
-    onError: () => {
-      addToast({ type: "error", message: "No se pudieron guardar los horarios" });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "No se pudieron guardar los horarios") });
     },
   });
 

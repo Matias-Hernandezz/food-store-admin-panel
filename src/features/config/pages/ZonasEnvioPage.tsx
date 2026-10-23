@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zonasEnvioApi, type ZonaEnvioRow } from "../api/zonasEnvioApi";
 import { useUIStore } from "../../../store/uiStore";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 const emptyRow = (): ZonaEnvioRow => ({
     nombre: "",
@@ -46,7 +47,8 @@ export function ZonasEnvioPage() {
             addToast({ type: "success", message: "Zonas guardadas" });
             queryClient.invalidateQueries({ queryKey: ["config-zonas-envio"] });
         },
-        onError: () => addToast({ type: "error", message: "No se pudieron guardar las zonas" }),
+        onError: (err) =>
+            addToast({ type: "error", message: getApiErrorMessage(err, "No se pudieron guardar las zonas") }),
     });
 
     const updateRow = (index: number, patch: Partial<ZonaEnvioRow>) => {

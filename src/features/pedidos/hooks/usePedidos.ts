@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { pedidosApi } from "../api/pedidosApi";
 import { useUIStore } from "../../../store/uiStore";
 import type { PedidoCreate, DireccionCreate } from "../types/index";
-import type { AxiosError } from "axios";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 import { ESTADO_COLOR, ESTADO_LABEL, ESTADOS_FSM_DELIVERY, transicionesSiguientes } from "../pedidoEstados";
 
@@ -58,17 +58,11 @@ export function usePedidos({ desde, hasta, search, estado, enabled = true }: Pro
             queryClient.invalidateQueries({ queryKey: ["pedidos"] });
             addToast({ type: "success", message: `Pedido → ${ESTADO_LABEL[estado] ?? estado}` });
         },
-        onError: (err: AxiosError<{ detail: string }>) => {
-            const status = err?.response?.status;
-            const detail = err?.response?.data?.detail || err?.message || "";
-            const msg =
-                status === 429 ? "Demasiadas peticiones, esperá unos segundos" :
-                status === 403 ? "No tenés permisos para esta acción" :
-                status === 422 ? (detail || "Datos inválidos") :
-                status === 404 ? "Pedido no encontrado" :
-                !navigator.onLine ? "Sin conexión a internet" :
-                (detail || "Error al cambiar el estado del pedido");
-            addToast({ type: "error", message: msg });
+        onError: (err) => {
+            addToast({
+                type: "error",
+                message: getApiErrorMessage(err, "Error al cambiar el estado del pedido"),
+            });
         },
     });
 
@@ -78,15 +72,8 @@ export function usePedidos({ desde, hasta, search, estado, enabled = true }: Pro
             queryClient.invalidateQueries({ queryKey: ["direcciones"] });
             addToast({ type: "success", message: "Dirección creada" });
         },
-        onError: (err: AxiosError<{ detail: string }>) => {
-            const status = err?.response?.status;
-            const detail = err?.response?.data?.detail || err?.message || "";
-            const msg =
-                status === 422 ? (detail || "Datos inválidos") :
-                status === 403 ? "No tenés permisos para esta acción" :
-                !navigator.onLine ? "Sin conexión a internet" :
-                (detail || "Error al crear la dirección");
-            addToast({ type: "error", message: msg });
+        onError: (err) => {
+            addToast({ type: "error", message: getApiErrorMessage(err, "Error al crear la dirección") });
         },
     });
 
@@ -96,16 +83,8 @@ export function usePedidos({ desde, hasta, search, estado, enabled = true }: Pro
             queryClient.invalidateQueries({ queryKey: ["mis-pedidos"] });
             addToast({ type: "success", message: "Pedido creado" });
         },
-        onError: (err: AxiosError<{ detail: string }>) => {
-            const status = err?.response?.status;
-            const detail = err?.response?.data?.detail || err?.message || "";
-            const msg =
-                status === 422 ? (detail || "Datos inválidos") :
-                status === 403 ? "No tenés permisos para esta acción" :
-                status === 409 ? (detail || "Conflicto al crear el pedido") :
-                !navigator.onLine ? "Sin conexión a internet" :
-                (detail || "Error al crear el pedido");
-            addToast({ type: "error", message: msg });
+        onError: (err) => {
+            addToast({ type: "error", message: getApiErrorMessage(err, "Error al crear el pedido") });
         },
     });
 

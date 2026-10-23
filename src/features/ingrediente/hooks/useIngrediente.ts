@@ -2,7 +2,7 @@ import { useQuery, QueryKey, useMutation, useQueryClient } from "@tanstack/react
 import { ingredienteApi } from "../api/ingrediente.actions";
 import { useUIStore } from "../../../store/uiStore";
 import type { Ingrediente, IngredienteCreate, IngredienteUpdate, PaginatedResponse } from "../../../shared/types";
-import type { AxiosError } from "axios";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 const INGREDIENTE_KEY = ["ingredientes"] as const;
 
@@ -44,16 +44,8 @@ export function useIngredientes({
       queryClient.invalidateQueries({ queryKey: INGREDIENTE_KEY });
       addToast({ type: "success", message: "Ingrediente creado" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "El nombre ya está en uso") :
-          status === 422 ? (detail || "Datos inválidos") :
-            status === 403 ? "No tenés permisos para esta acción" :
-              !navigator.onLine ? "Sin conexión a internet" :
-                (detail || "Error al crear el ingrediente");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al crear el ingrediente") });
     },
   });
 
@@ -64,17 +56,8 @@ export function useIngredientes({
       queryClient.invalidateQueries({ queryKey: INGREDIENTE_KEY });
       addToast({ type: "success", message: "Ingrediente actualizado" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "El nombre ya está en uso") :
-          status === 404 ? "Ingrediente no encontrado" :
-            status === 422 ? (detail || "Datos inválidos") :
-              status === 403 ? "No tenés permisos para esta acción" :
-                !navigator.onLine ? "Sin conexión a internet" :
-                  (detail || "Error al actualizar el ingrediente");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al actualizar el ingrediente") });
     },
   });
 
@@ -97,18 +80,11 @@ export function useIngredientes({
     onSuccess: () => {
       addToast({ type: "success", message: "Ingrediente eliminado" });
     },
-    onError: (err: AxiosError<{ detail: string }>, _id, context) => {
+    onError: (err, _id, context) => {
       if (context?.previous) {
         context.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       }
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 404 ? "Ingrediente no encontrado" :
-          status === 403 ? "No tenés permisos para esta acción" :
-            !navigator.onLine ? "Sin conexión a internet" :
-              (detail || "Error al eliminar el ingrediente");
-      addToast({ type: "error", message: msg });
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al eliminar el ingrediente") });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: INGREDIENTE_KEY }),
   });
@@ -132,19 +108,11 @@ export function useIngredientes({
     onSuccess: () => {
       addToast({ type: "success", message: "Ingrediente restaurado" });
     },
-    onError: (err: AxiosError<{ detail: string }>, _id, context) => {
+    onError: (err, _id, context) => {
       if (context?.previous) {
         context.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       }
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "Conflicto al restaurar") :
-          status === 404 ? "Ingrediente no encontrado" :
-            status === 403 ? "No tenés permisos para esta acción" :
-              !navigator.onLine ? "Sin conexión a internet" :
-                (detail || "Error al restaurar el ingrediente");
-      addToast({ type: "error", message: msg });
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al restaurar el ingrediente") });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: INGREDIENTE_KEY }),
   });

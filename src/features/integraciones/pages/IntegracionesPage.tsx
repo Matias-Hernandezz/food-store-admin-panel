@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { mpIntegrationsApi } from "../api/mpIntegrationsApi";
 import { TENANT_SLUG } from "../../../shared/config/tenantConfig";
 import { useUIStore } from "../../../store/uiStore";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 import { Icons } from "../../../shared/components/ui/Icons";
 
 export function IntegracionesPage() {
@@ -33,7 +34,8 @@ export function IntegracionesPage() {
       addToast({ type: "success", message: "Comisión delivery actualizada" });
       queryClient.invalidateQueries({ queryKey: ["config-delivery-fee"] });
     },
-    onError: () => addToast({ type: "error", message: "No se pudo guardar el porcentaje" }),
+    onError: (err) =>
+      addToast({ type: "error", message: getApiErrorMessage(err, "No se pudo guardar el porcentaje") }),
   });
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -62,8 +64,11 @@ export function IntegracionesPage() {
     try {
       const url = await mpIntegrationsApi.authorizeUrl(slug);
       window.location.href = url;
-    } catch {
-      addToast({ type: "error", message: "No se pudo iniciar la conexión con Mercado Pago" });
+    } catch (err) {
+      addToast({
+        type: "error",
+        message: getApiErrorMessage(err, "No se pudo iniciar la conexión con Mercado Pago"),
+      });
       setConnecting(false);
     }
   };

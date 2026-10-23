@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { facturacionApi, type ConfigFiscal } from "../api/facturacionApi";
 import { useUIStore } from "../../../store/uiStore";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 export function FacturacionPage() {
     const addToast = useUIStore((s) => s.addToast);
@@ -23,7 +24,8 @@ export function FacturacionPage() {
             addToast({ type: "success", message: "Configuración fiscal guardada" });
             queryClient.invalidateQueries({ queryKey: ["facturacion-config"] });
         },
-        onError: () => addToast({ type: "error", message: "No se pudo guardar" }),
+        onError: (err) =>
+            addToast({ type: "error", message: getApiErrorMessage(err, "No se pudo guardar la configuración") }),
     });
 
     if (isLoading || !draft) {

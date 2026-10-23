@@ -5,7 +5,7 @@ import { authApi } from "../../auth/api/authApi";
 import { useUIStore } from "../../../store/uiStore";
 import { useAuthStore } from "../../../store/authStore";
 import type { UsuarioCreate } from "../../../shared/types";
-import type { AxiosError } from "axios";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 interface Props {
   id?: number;
@@ -40,15 +40,8 @@ export function useUsuarios({
       queryClient.invalidateQueries({ queryKey: ["usuarios"] });
       addToast({ type: "success", message: "Usuario eliminado" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 404 ? "Usuario no encontrado" :
-        status === 403 ? "No tenés permisos para esta acción" :
-        !navigator.onLine ? "Sin conexión a internet" :
-        (detail || "Error al eliminar el usuario");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al eliminar el usuario") });
     },
   });
 
@@ -59,16 +52,8 @@ export function useUsuarios({
       queryClient.invalidateQueries({ queryKey: ["usuarios"] });
       addToast({ type: "success", message: "Rol removido" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 404 ? "Usuario o rol no encontrado" :
-        status === 409 ? (detail || "No se puede quitar el rol") :
-        status === 403 ? "No tenés permisos para esta acción" :
-        !navigator.onLine ? "Sin conexión a internet" :
-        (detail || "Error al quitar el rol");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al quitar el rol") });
     },
   });
 
@@ -79,16 +64,8 @@ export function useUsuarios({
       queryClient.invalidateQueries({ queryKey: ["usuarios"] });
       addToast({ type: "success", message: "Rol asignado" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 404 ? "Usuario no encontrado" :
-        status === 409 ? (detail || "El rol ya está asignado") :
-        status === 403 ? "No tenés permisos para esta acción" :
-        !navigator.onLine ? "Sin conexión a internet" :
-        (detail || "Error al asignar el rol");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al asignar el rol") });
     },
   });
 
@@ -98,16 +75,8 @@ export function useUsuarios({
       queryClient.invalidateQueries({ queryKey: ["usuarios"] });
       addToast({ type: "success", message: "Usuario creado" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "El email ya está registrado") :
-        status === 422 ? (detail || "Datos inválidos") :
-        status === 403 ? "No tenés permisos para esta acción" :
-        !navigator.onLine ? "Sin conexión a internet" :
-        (detail || "Error al crear el usuario");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al crear el usuario") });
     },
   });
 

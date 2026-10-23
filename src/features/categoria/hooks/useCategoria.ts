@@ -2,7 +2,7 @@ import { useQuery, QueryKey, useMutation, useQueryClient } from "@tanstack/react
 import { categoriaApi } from "../api/categoria.actions";
 import { useUIStore } from "../../../store/uiStore";
 import type { Categoria, CategoriaCreate, CategoriaUpdate, PaginatedResponse } from "../../../shared/types";
-import type { AxiosError } from "axios";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 const CATEGORIA_KEY = ["categorias"] as const;
 
@@ -44,16 +44,8 @@ export function useCategorias({
       queryClient.invalidateQueries({ queryKey: CATEGORIA_KEY });
       addToast({ type: "success", message: "Categoría creada" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "El nombre ya está en uso") :
-          status === 422 ? (detail || "Datos inválidos") :
-            status === 403 ? "No tenés permisos para esta acción" :
-              !navigator.onLine ? "Sin conexión a internet" :
-                (detail || "Error al crear la categoría");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al crear la categoría") });
     },
   });
 
@@ -64,18 +56,8 @@ export function useCategorias({
       queryClient.invalidateQueries({ queryKey: CATEGORIA_KEY });
       addToast({ type: "success", message: "Categoría actualizada" });
     },
-    onError: (err: AxiosError<{ detail: string }>) => {
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "El nombre ya está en uso") :
-          status === 404 ? "Categoría no encontrada" :
-            status === 422 ? (detail || "Datos inválidos") :
-              status === 403 ? "No tenés permisos para esta acción" :
-                status === 400 ? (detail || "Datos inválidos") :
-                  !navigator.onLine ? "Sin conexión a internet" :
-                    (detail || "Error al actualizar la categoría");
-      addToast({ type: "error", message: msg });
+    onError: (err) => {
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al actualizar la categoría") });
     },
   });
 
@@ -98,18 +80,11 @@ export function useCategorias({
     onSuccess: () => {
       addToast({ type: "success", message: "Categoría eliminada" });
     },
-    onError: (err: AxiosError<{ detail: string }>, _id, context) => {
+    onError: (err, _id, context) => {
       if (context?.previous) {
         context.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       }
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 404 ? "Categoría no encontrada" :
-          status === 403 ? "No tenés permisos para esta acción" :
-            !navigator.onLine ? "Sin conexión a internet" :
-              (detail || "Error al eliminar la categoría");
-      addToast({ type: "error", message: msg });
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al eliminar la categoría") });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: CATEGORIA_KEY }),
   });
@@ -133,19 +108,11 @@ export function useCategorias({
     onSuccess: () => {
       addToast({ type: "success", message: "Categoría restaurada" });
     },
-    onError: (err: AxiosError<{ detail: string }>, _id, context) => {
+    onError: (err, _id, context) => {
       if (context?.previous) {
         context.previous.forEach(([key, data]) => queryClient.setQueryData(key, data));
       }
-      const status = err?.response?.status;
-      const detail = err?.response?.data?.detail || err?.message || "";
-      const msg =
-        status === 409 ? (detail || "Conflicto al restaurar") :
-          status === 404 ? "Categoría no encontrada" :
-            status === 403 ? "No tenés permisos para esta acción" :
-              !navigator.onLine ? "Sin conexión a internet" :
-                (detail || "Error al restaurar la categoría");
-      addToast({ type: "error", message: msg });
+      addToast({ type: "error", message: getApiErrorMessage(err, "Error al restaurar la categoría") });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: CATEGORIA_KEY }),
   });
