@@ -1,22 +1,37 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { facturacionApi } from "../../facturacion/api/facturacionApi";
+import { cajaApi } from "../../caja/api/cajaApi";
 import { useUIStore } from "../../../store/uiStore";
 import { getApiErrorMessage } from "../../../shared/utils/apiError";
 import type { Pedido } from "../types/index";
 import { ESTADO_LABEL, ESTADO_COLOR, transicionesSiguientes } from "../hooks/usePedidos";
+import { imprimirComanda } from "../utils/printComanda";
 
 interface Props {
     pedido: Pedido;
     onAvanzar: (id: number, estado: string, motivo?: string) => void;
     loading: boolean;
     ingredientesMap?: Map<number, string>;
+    /** Muestra minutos desde creación (cocina / KDS). */
+    mostrarTiempoEspera?: boolean;
 }
 
 const CLIENT_APP_URL = (import.meta.env.VITE_CLIENT_APP_URL as string | undefined)?.replace(/\/$/, "") ?? "http://localhost:5174";
 
-export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Props) {
+const TIPO_LABEL: Record<string, string> = {
+    DELIVERY: "Delivery",
+    PICKUP: "Retiro",
+    DINE_IN: "Salón",
+};
+
+function minutosEspera(createdAt: string): number {
+    return Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000));
+}
+
+export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap, mostrarTiempoEspera }: Props) {
     const addToast = useUIStore((s) => s.addToast);
+    const queryClient = useQueryClient();
     const emitirFactura = useMutation({
         mutationFn: () => facturacionApi.emitir(pedido.id),
         onSuccess: (c) => addToast({ type: "success", message: `CAE ${c.cae}` }),
@@ -31,12 +46,39 @@ export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Prop
     const [mostrarMotivo, setMostrarMotivo] = useState(false);
     const [motivoCancel, setMotivoCancel] = useState("");
 
+    const confirmarCobro = useMutation({
+        mutationFn: () => cajaApi.confirmarCobro(pedido.id),
+        onSuccess: () => {
+            addToast({ type: "success", message: `Cobro confirmado · pedido #${pedido.id}` });
+            queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+            queryClient.invalidateQueries({ queryKey: ["caja-turno"] });
+            queryClient.invalidateQueries({ queryKey: ["pedidos", "cocina"] });
+        },
+        onError: (err) =>
+            addToast({ type: "error", message: getApiErrorMessage(err, "No se pudo confirmar el cobro") }),
+    });
+
+    const puedeCobrar = pedido.estado_codigo === "PENDIENTE";
+    const espera = mostrarTiempoEspera ? minutosEspera(pedido.created_at) : null;
+
     return (
         <div className="rounded-2xl p-5 shadow-sm flex flex-col h-full" style={{ backgroundColor: "#fff", border: "1px solid #E5E2DA" }}>
             <div className="flex flex-wrap items-start justify-between gap-y-2 mb-3">
                 <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-semibold font-mono" style={{ color: "#9a8070" }}>#{pedido.id}</span>
+                        {pedido.tipo_pedido && (
+                            <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#f3ebe3] text-[#6b5a4e]">
+                                {TIPO_LABEL[pedido.tipo_pedido] ?? pedido.tipo_pedido}
+                            </span>
+                        )}
+                        {espera != null && (
+                            <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${espera >= 20 ? "bg-red-100 text-red-800" : espera >= 10 ? "bg-amber-100 text-amber-900" : "bg-emerald-50 text-emerald-800"}`}
+                            >
+                                {espera} min
+                            </span>
+                        )}
                         {pedido.usuario_nombre && (
                             <span className="text-sm font-semibold" style={{ color: "#2d1e0f" }}>
                                 {pedido.usuario_nombre}
@@ -119,14 +161,35 @@ export function PedidoCard({ pedido, onAvanzar, loading, ingredientesMap }: Prop
                 ))}
             </div>
 
-            {pedido.estado_codigo !== "CANCELADO" && (
+            <div className="flex flex-wrap gap-3 mb-3">
                 <button
                     type="button"
-                    disabled={emitirFactura.isPending}
-                    onClick={() => emitirFactura.mutate()}
-                    className="mb-3 text-xs font-semibold text-[#2d1e0f] underline disabled:opacity-50"
+                    className="text-xs font-semibold text-[#2d1e0f] underline"
+                    onClick={() => imprimirComanda(pedido, ingredientesMap)}
                 >
-                    {emitirFactura.isPending ? "Emitiendo factura…" : "Emitir factura (mock/ARCA)"}
+                    Imprimir comanda
+                </button>
+                {pedido.estado_codigo !== "CANCELADO" && (
+                    <button
+                        type="button"
+                        disabled={emitirFactura.isPending}
+                        onClick={() => emitirFactura.mutate()}
+                        className="text-xs font-semibold text-[#2d1e0f] underline disabled:opacity-50"
+                    >
+                        {emitirFactura.isPending ? "Emitiendo factura…" : "Emitir factura (mock/ARCA)"}
+                    </button>
+                )}
+            </div>
+
+            {puedeCobrar && (
+                <button
+                    type="button"
+                    disabled={confirmarCobro.isPending || loading}
+                    onClick={() => confirmarCobro.mutate()}
+                    className="mb-3 w-full text-xs font-bold py-2.5 px-3 rounded-xl disabled:opacity-50"
+                    style={{ backgroundColor: "#166534", color: "#fff" }}
+                >
+                    {confirmarCobro.isPending ? "Registrando cobro…" : "Confirmar cobro (caja)"}
                 </button>
             )}
 

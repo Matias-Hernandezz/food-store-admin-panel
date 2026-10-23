@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useProductos } from "../../producto/hooks/useProducto";
 import { usePedidos } from "../../pedidos/hooks/usePedidos";
+import { pedidosApi } from "../../pedidos/api/pedidosApi";
 import { cajaApi } from "../api/cajaApi";
 import { useUIStore } from "../../../store/uiStore";
 import { getApiErrorMessage } from "../../../shared/utils/apiError";
@@ -15,6 +16,26 @@ export function CajaPage() {
     });
     const { data: productosData } = useProductos({ page: 1, pageSize: 100 });
     const { formasPago } = usePedidos({ enabled: false });
+
+    const { data: pendientesData, refetch: refetchPendientes } = useQuery({
+        queryKey: ["pedidos", "pendientes-caja"],
+        queryFn: () => pedidosApi.getAll(0, 30, undefined, undefined, undefined, "PENDIENTE"),
+        enabled: !!turno,
+    });
+    const pendientes = pendientesData?.data ?? [];
+
+    const cobrarPendiente = useMutation({
+        mutationFn: (pedidoId: number) => cajaApi.confirmarCobro(pedidoId),
+        onSuccess: () => {
+            addToast({ type: "success", message: "Cobro registrado" });
+            queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+            queryClient.invalidateQueries({ queryKey: ["caja-turno"] });
+            queryClient.invalidateQueries({ queryKey: ["pedidos", "cocina"] });
+            refetchPendientes();
+        },
+        onError: (err) =>
+            addToast({ type: "error", message: getApiErrorMessage(err, "No se pudo cobrar") }),
+    });
 
     const [fondoInicial, setFondoInicial] = useState("0");
     const [efectivoCierre, setEfectivoCierre] = useState("");
@@ -149,6 +170,47 @@ export function CajaPage() {
                     </div>
                 )}
             </div>
+
+            {turno && pendientes.length > 0 && (
+                <div
+                    className="rounded-xl border p-6 max-w-2xl"
+                    style={{ backgroundColor: "#fff", borderColor: "#e8d5c0" }}
+                >
+                    <h2 className="font-bold mb-3" style={{ color: "#2d1e0f" }}>
+                        Cobros pendientes ({pendientes.length})
+                    </h2>
+                    <p className="text-xs mb-4" style={{ color: "#6b5a4a" }}>
+                        Pedidos web o delivery en PENDIENTE. Al confirmar pasan a CONFIRMADO y entran a cocina.
+                    </p>
+                    <ul className="space-y-2">
+                        {pendientes.map((p) => (
+                            <li
+                                key={p.id}
+                                className="flex flex-wrap items-center justify-between gap-2 text-sm border rounded-lg p-3"
+                                style={{ borderColor: "#e8d5c0" }}
+                            >
+                                <span>
+                                    <strong>#{p.id}</strong>
+                                    {p.usuario_nombre ? ` · ${p.usuario_nombre}` : ""}
+                                    {" · "}
+                                    {p.forma_pago_codigo}
+                                    {" · "}
+                                    <strong>${Number(p.total).toFixed(2)}</strong>
+                                </span>
+                                <button
+                                    type="button"
+                                    disabled={cobrarPendiente.isPending}
+                                    onClick={() => cobrarPendiente.mutate(p.id)}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-bold text-white disabled:opacity-50"
+                                    style={{ backgroundColor: "#166534" }}
+                                >
+                                    Confirmar cobro
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             {turno && (
                 <div

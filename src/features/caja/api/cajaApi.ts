@@ -34,4 +34,7 @@ export const cajaApi = {
                 confirmar_pago: true,
             })
             .then((r) => r.data),
+
+    confirmarCobro: (pedidoId: number) =>
+        api.post<Pedido>(`${BASE}/pedidos/${pedidoId}/confirmar-cobro`).then((r) => r.data),
 };

@@ -18,6 +18,7 @@ import { CajeroPedidosPage } from "./features/pedidos/pages/CajeroPedidosPage";
 import { CocinaPage } from "./features/pedidos/pages/CocinaPage";
 import { IntegracionesPage } from "./features/integraciones/pages/IntegracionesPage";
 import { HorariosPage } from "./features/config/pages/HorariosPage";
+import { MiLocalPage } from "./features/config/pages/MiLocalPage";
 import { ZonasEnvioPage } from "./features/config/pages/ZonasEnvioPage";
 import { CajaPage } from "./features/caja/pages/CajaPage";
 import { FacturacionPage } from "./features/facturacion/pages/FacturacionPage";
@@ -77,6 +78,7 @@ export default function App() {
                       <Route path="panel" element={<DashboardPage />} />
                       <Route path="estadisticas" element={<EstadisticasPage />} />
                       <Route path="integraciones" element={<IntegracionesPage />} />
+                      <Route path="mi-local" element={<MiLocalPage />} />
                       <Route path="horarios" element={<HorariosPage />} />
                       <Route path="zonas-envio" element={<ZonasEnvioPage />} />
                     </Routes>

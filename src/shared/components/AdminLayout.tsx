@@ -46,6 +46,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: "Tienda online",
     items: [
+      { to: "/admin/mi-local", label: "Mi local", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
       { to: "/admin/horarios", label: "Horarios", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
       { to: "/admin/zonas-envio", label: "Zonas de envío", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
     ],
