@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zonasEnvioApi, type ZonaEnvioRow } from "../api/zonasEnvioApi";
 import { useUIStore } from "../../../store/uiStore";
 import { getApiErrorMessage } from "../../../shared/utils/apiError";
+import { AdminPageHeader } from "../../../shared/components/AdminPageHeader";
 
 const emptyRow = (): ZonaEnvioRow => ({
     nombre: "",
@@ -66,13 +67,13 @@ export function ZonasEnvioPage() {
     }
 
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-2" style={{ color: "#2d1e0f" }}>Zonas de envío</h1>
-            <p className="text-sm mb-6" style={{ color: "#6b5a4a" }}>
-                Una fila <strong>sin ciudad</strong> es la zona default. Las demás coinciden por ciudad (sin importar mayúsculas).
-            </p>
+        <div className="flex flex-col gap-6 max-w-3xl">
+            <AdminPageHeader
+                title="Zonas de envío"
+                description="Costo de envío y mínimo de compra por ciudad en la tienda web. Una fila sin ciudad es la zona por defecto."
+            />
 
-            <div className="space-y-4 max-w-3xl">
+            <div className="space-y-4">
                 {draft.map((z, i) => (
                     <div
                         key={i}

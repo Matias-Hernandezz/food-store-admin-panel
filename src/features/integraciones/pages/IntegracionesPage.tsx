@@ -7,6 +7,7 @@ import { TENANT_SLUG } from "../../../shared/config/tenantConfig";
 import { useUIStore } from "../../../store/uiStore";
 import { getApiErrorMessage } from "../../../shared/utils/apiError";
 import { Icons } from "../../../shared/components/ui/Icons";
+import { AdminCard, AdminPageHeader } from "../../../shared/components/AdminPageHeader";
 
 export function IntegracionesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,12 +16,12 @@ export function IntegracionesPage() {
   const [connecting, setConnecting] = useState(false);
   const [feeDraft, setFeeDraft] = useState<string>("");
 
-  const slug = TENANT_SLUG || undefined;
-
   const feeQuery = useQuery({
     queryKey: ["config-delivery-fee"],
     queryFn: () => deliveryFeeApi.get(),
   });
+
+  const mpSlug = TENANT_SLUG || feeQuery.data?.tenant_slug || "demo";
 
   useEffect(() => {
     if (feeQuery.data) {
@@ -39,8 +40,9 @@ export function IntegracionesPage() {
   });
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["mp-integration-status", slug ?? "default"],
-    queryFn: () => mpIntegrationsApi.status(slug),
+    queryKey: ["mp-integration-status", mpSlug],
+    queryFn: () => mpIntegrationsApi.status(mpSlug),
+    retry: 1,
   });
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export function IntegracionesPage() {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const url = await mpIntegrationsApi.authorizeUrl(slug);
+      const url = await mpIntegrationsApi.authorizeUrl(mpSlug);
       window.location.href = url;
     } catch (err) {
       addToast({
@@ -74,18 +76,13 @@ export function IntegracionesPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-2" style={{ color: "#2d1e0f" }}>
-        Integraciones
-      </h1>
-      <p className="text-sm mb-8" style={{ color: "#6b5a4a" }}>
-        Conectá la cuenta de Mercado Pago del local. Los cobros online van a esa cuenta (OAuth).
-      </p>
+    <div className="flex flex-col gap-6 max-w-2xl">
+      <AdminPageHeader
+        title="Mercado Pago"
+        description="Conectá la cuenta del local para cobrar con tarjeta en la tienda web. Los pagos van a esa cuenta (OAuth de Mercado Pago), no a una cuenta global del sistema."
+      />
 
-      <div
-        className="max-w-xl rounded-xl p-6 border"
-        style={{ backgroundColor: "#fff", borderColor: "#e8d5c0" }}
-      >
+      <AdminCard>
         <div className="flex items-start gap-4">
           <div
             className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
@@ -94,42 +91,37 @@ export function IntegracionesPage() {
             <Icons.Payments width={28} height={28} />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-bold" style={{ color: "#2d1e0f" }}>Mercado Pago</h2>
-            {TENANT_SLUG ? (
-              <p className="text-xs mt-1" style={{ color: "#888" }}>
-                Local: <span className="font-mono">{TENANT_SLUG}</span>
-              </p>
-            ) : (
-              <p className="text-xs mt-1" style={{ color: "#b45309" }}>
-                Modo legacy: definí <code className="font-mono">VITE_TENANT_SLUG</code> si usás multi-tenant.
-              </p>
-            )}
+            <h2 className="text-lg font-bold" style={{ color: "#2d1e0f" }}>Estado de la conexión</h2>
+            <p className="text-xs mt-1" style={{ color: "#9a8070" }}>
+              Local: <span className="font-mono font-semibold">{mpSlug}</span>
+              {TENANT_SLUG ? null : (
+                <span className="block mt-1">
+                  En desarrollo usamos el tenant <code className="font-mono">demo</code> de la base de control.
+                  En producción multi-local: <code className="font-mono">VITE_TENANT_SLUG</code> en el admin.
+                </span>
+              )}
+            </p>
 
-            {isLoading && <p className="text-sm mt-4" style={{ color: "#888" }}>Cargando estado…</p>}
+            {isLoading && <p className="text-sm mt-4" style={{ color: "#6b5a4a" }}>Cargando estado…</p>}
             {error && (
               <p className="text-sm mt-4" style={{ color: "#dc2626" }}>
-                No se pudo leer el estado. Revisá que el backend esté en marcha y el slug sea correcto.
+                {getApiErrorMessage(error, "No se pudo leer el estado de Mercado Pago")}
               </p>
             )}
 
             {data && !isLoading && (
-              <div className="mt-4 space-y-2 text-sm" style={{ color: "#4a3d2f" }}>
+              <div className="mt-4 space-y-2 text-sm" style={{ color: "#2d1e0f" }}>
                 <p>
                   Estado:{" "}
-                  <span
-                    className="font-bold"
-                    style={{ color: data.connected ? "#16a34a" : "#ca8a04" }}
-                  >
+                  <span className="font-bold" style={{ color: data.connected ? "#16a34a" : "#ca8a04" }}>
                     {data.connected ? "Conectado" : "Sin conectar"}
                   </span>
                 </p>
                 {data.mp_user_id && (
-                  <p className="text-xs" style={{ color: "#888" }}>
-                    MP user id: {data.mp_user_id}
-                  </p>
+                  <p className="text-xs" style={{ color: "#9a8070" }}>Usuario MP: {data.mp_user_id}</p>
                 )}
                 {data.expires_at && (
-                  <p className="text-xs" style={{ color: "#888" }}>
+                  <p className="text-xs" style={{ color: "#9a8070" }}>
                     Token expira: {new Date(data.expires_at).toLocaleString("es-AR")}
                   </p>
                 )}
@@ -150,36 +142,34 @@ export function IntegracionesPage() {
                 type="button"
                 onClick={() => refetch()}
                 className="px-4 py-2 rounded-lg text-sm font-semibold border"
-                style={{ borderColor: "#d4c4b0", color: "#6b5a4a" }}
+                style={{ borderColor: "#d4c4b0", color: "#2d1e0f" }}
               >
-                Actualizar estado
+                Actualizar
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </AdminCard>
 
-      <div
-        className="max-w-xl rounded-xl p-6 border mt-8"
-        style={{ backgroundColor: "#fff", borderColor: "#e8d5c0" }}
-      >
+      <AdminCard>
         <h2 className="text-lg font-bold mb-1" style={{ color: "#2d1e0f" }}>
-          KPI ahorro vs apps de delivery
+          Comisión apps de delivery (KPI)
         </h2>
-        <p className="text-sm mb-4" style={{ color: "#6b5a4a" }}>
-          Porcentaje de comisión que estimás que cobran Rappi/PedidosYa/etc. Se usa en el dashboard de ahorro.
+        <p className="text-sm mb-4" style={{ color: "#9a8070" }}>
+          Porcentaje que estimás que cobran Rappi, PedidosYa, etc. Solo alimenta el gráfico de &quot;ahorro&quot; del panel;
+          no cambia precios ni envíos de tu tienda.
         </p>
-        {feeQuery.isLoading && <p className="text-sm" style={{ color: "#888" }}>Cargando…</p>}
+        {feeQuery.isLoading && <p className="text-sm" style={{ color: "#9a8070" }}>Cargando…</p>}
         {feeQuery.data && (
           <>
             {feeQuery.data.usa_default_global && (
-              <p className="text-xs mb-3" style={{ color: "#b45309" }}>
-                Modo sin tenant: se usa el default del servidor. En multi-tenant, definí{" "}
-                <code className="font-mono">VITE_TENANT_SLUG</code>.
+              <p className="text-xs mb-3 p-3 rounded-lg" style={{ backgroundColor: "#fef3c7", color: "#92400e" }}>
+                En modo single-tenant el % viene del servidor (<code>DEFAULT_DELIVERY_APP_FEE_PERCENT</code>).
+                Para editarlo por local, activá multi-tenant y definí <code>VITE_TENANT_SLUG</code>.
               </p>
             )}
             <div className="flex items-end gap-3 flex-wrap">
-              <label className="text-sm" style={{ color: "#4a3d2f" }}>
+              <label className="text-sm font-medium" style={{ color: "#2d1e0f" }}>
                 Comisión estimada (%)
                 <input
                   type="number"
@@ -189,7 +179,7 @@ export function IntegracionesPage() {
                   value={feeDraft}
                   onChange={(e) => setFeeDraft(e.target.value)}
                   className="mt-1 block w-32 px-3 py-2 rounded-lg border text-sm"
-                  style={{ borderColor: "#e8d5c0" }}
+                  style={{ borderColor: "#e8d5c0", color: "#2d1e0f" }}
                 />
               </label>
               <button
@@ -204,7 +194,7 @@ export function IntegracionesPage() {
             </div>
           </>
         )}
-      </div>
+      </AdminCard>
     </div>
   );
 }

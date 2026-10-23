@@ -8,30 +8,80 @@ import { Icons } from "./ui/Icons";
 import { ConnectionBadge } from "./ConnectionBadge";
 import { ROLE, STAFF_ORDER_ROLES } from "../roles";
 
-const PANEL_ITEMS = [
-  { to: "/admin/panel",   label: "Panel",    icon: <Icons.Dashboard width={18} height={18} />, required: [...STAFF_ORDER_ROLES] },
-  { to: "/admin/usuarios", label: "Usuarios", icon: <Icons.Usuarios width={18} height={18} />, required: [ROLE.OWNER] },
-  { to: "/admin/integraciones", label: "Integraciones", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER] },
-  { to: "/admin/horarios", label: "Horarios", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
-  { to: "/admin/zonas-envio", label: "Zonas envío", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
-  { to: "/admin/caja", label: "Caja", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER, ROLE.CASHIER] },
-  { to: "/admin/facturacion", label: "Facturación", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER] },
-];
+type NavItem = {
+  to: string;
+  label: string;
+  icon: ReactNode;
+  required: string[];
+};
 
-const NAV_ITEMS: { to: string; label: string; icon: ReactNode; required: string[] }[] = [
-  { to: "/admin/pedidos",     label: "Pedidos",      icon: <Icons.Pedidos width={18} height={18} />, required: [...STAFF_ORDER_ROLES] },
-];
+type NavGroup = {
+  title: string;
+  items: NavItem[];
+};
 
-const CATALOGO_ITEMS: { to: string; label: string; icon: ReactNode; required: string[] }[] = [
-  { to: "/admin/categorias",  label: "Categorías",    icon: <Icons.Categoria width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
-  { to: "/admin/productos",   label: "Productos",     icon: <Icons.Producto width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
-  { to: "/admin/ingredientes", label: "Ingredientes", icon: <Icons.Ingrediente width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
+const NAV_GROUPS: NavGroup[] = [
+  {
+    title: "General",
+    items: [
+      { to: "/admin/panel", label: "Panel", icon: <Icons.Dashboard width={18} height={18} />, required: [...STAFF_ORDER_ROLES] },
+    ],
+  },
+  {
+    title: "Operación",
+    items: [
+      { to: "/admin/pedidos", label: "Pedidos", icon: <Icons.Pedidos width={18} height={18} />, required: [...STAFF_ORDER_ROLES] },
+      { to: "/admin/cocina", label: "Cocina", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER, ROLE.KITCHEN] },
+      { to: "/admin/cajero", label: "Mostrador", icon: <Icons.Pedidos width={18} height={18} />, required: [ROLE.OWNER, ROLE.CASHIER] },
+    ],
+  },
+  {
+    title: "Catálogo",
+    items: [
+      { to: "/admin/categorias", label: "Categorías", icon: <Icons.Categoria width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
+      { to: "/admin/productos", label: "Productos", icon: <Icons.Producto width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
+      { to: "/admin/ingredientes", label: "Ingredientes", icon: <Icons.Ingrediente width={18} height={18} />, required: [ROLE.OWNER, ROLE.STOCK] },
+    ],
+  },
+  {
+    title: "Tienda online",
+    items: [
+      { to: "/admin/horarios", label: "Horarios", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
+      { to: "/admin/zonas-envio", label: "Zonas de envío", icon: <Icons.RestaurantMenu width={18} height={18} />, required: [ROLE.OWNER] },
+    ],
+  },
+  {
+    title: "Cobros y caja",
+    items: [
+      { to: "/admin/caja", label: "Caja", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER, ROLE.CASHIER] },
+      { to: "/admin/facturacion", label: "Facturación", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER] },
+      { to: "/admin/integraciones", label: "Mercado Pago", icon: <Icons.Payments width={18} height={18} />, required: [ROLE.OWNER] },
+    ],
+  },
+  {
+    title: "Administración",
+    items: [
+      { to: "/admin/usuarios", label: "Usuarios", icon: <Icons.Usuarios width={18} height={18} />, required: [ROLE.OWNER] },
+    ],
+  },
 ];
 
 const navLinkStyle = (isActive: boolean) =>
   isActive
     ? { backgroundColor: "rgba(249,115,22,0.15)", color: "#C87A2E", border: "1px solid rgba(249,115,22,0.25)", borderRadius: 8, padding: "10px 12px", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }
-    : { color: "#888", border: "1px solid transparent", borderRadius: 8, padding: "10px 12px", fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 12, transition: "all .15s" };
+    : { color: "#c4b5a5", border: "1px solid transparent", borderRadius: 8, padding: "10px 12px", fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 12, transition: "all .15s" };
+
+const navLinkStyleCollapsed = (isActive: boolean) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "8px",
+  borderRadius: 8,
+  backgroundColor: isActive ? "rgba(249,115,22,0.15)" : "transparent",
+  color: isActive ? "#C87A2E" : "#888",
+  border: isActive ? "1px solid rgba(249,115,22,0.25)" : "1px solid transparent",
+  transition: "all .15s",
+});
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const { hasRole, isOwner } = useUsuarios({ enabled: false });
@@ -42,7 +92,6 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  // WebSocket — conecta en todas las páginas del admin
   useAdminOrdersFeed();
 
   useEffect(() => {
@@ -55,15 +104,10 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const topItems = PANEL_ITEMS.filter((item) =>
-    isOwner || item.required.some((role) => hasRole(role))
-  );
-  const visibleItems = NAV_ITEMS.filter((item) =>
-    isOwner || item.required.some((role) => hasRole(role))
-  );
-  const catalogoItems = CATALOGO_ITEMS.filter((item) =>
-    isOwner || item.required.some((role) => hasRole(role))
-  );
+  const visibleGroups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => isOwner || item.required.some((role) => hasRole(role))),
+  })).filter((g) => g.items.length > 0);
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: "#E8D5C0" }}>
@@ -71,15 +115,14 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         className={`shrink-0 flex flex-col transition-all duration-300 ease-in-out ${sidebarOpen ? "w-56" : "w-16"}`}
         style={{ backgroundColor: "#2d1e0f", borderRight: "1px solid #4A3D2F", overflow: "visible" }}
       >
-        {/* ── Header con toggle ──────────────────────────────────── */}
         <div
           className={`flex items-center px-3 py-4 gap-2 ${sidebarOpen ? "justify-between" : "justify-center"}`}
           style={{ borderBottom: "1px solid #4A3D2F" }}
         >
           {sidebarOpen && (
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#C87A2E" }}>Panel Admin</p>
-              <h2 className="text-lg font-bold mt-0.5" style={{ color: "#f1f1f1" }}>Gestión</h2>
+              <p className="text-xs font-bold uppercase tracking-widest" style={{ color: "#C87A2E" }}>Food Store</p>
+              <h2 className="text-lg font-bold mt-0.5" style={{ color: "#f1f1f1" }}>Admin</h2>
             </div>
           )}
           <button
@@ -94,7 +137,6 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           </button>
         </div>
 
-        {/* ── Perfil de usuario ──────────────────────────────────── */}
         <div className="relative" ref={profileRef}>
           <button
             onClick={() => sidebarOpen && setProfileOpen((p) => !p)}
@@ -104,8 +146,6 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               borderBottom: "1px solid #4A3D2F",
               cursor: sidebarOpen ? "pointer" : "default",
             }}
-            onMouseEnter={(e) => { if (!profileOpen && sidebarOpen) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.04)"; }}
-            onMouseLeave={(e) => { if (!profileOpen) e.currentTarget.style.backgroundColor = "transparent"; }}
           >
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
@@ -130,15 +170,10 @@ export function AdminLayout({ children }: { children: ReactNode }) {
             )}
           </button>
 
-          {/* Popover — solo cuando expandido */}
           {sidebarOpen && profileOpen && (
             <div
               className="absolute top-full left-0 right-0 mt-1 mx-2 rounded-xl p-4 z-50 min-w-[220px]"
-              style={{
-                backgroundColor: "#222",
-                border: "1px solid #333",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-              }}
+              style={{ backgroundColor: "#222", border: "1px solid #333", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}
             >
               <div className="flex items-center gap-3 mb-3">
                 <div
@@ -151,13 +186,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                   <p className="text-sm font-semibold truncate" style={{ color: "#f1f1f1" }}>
                     {user?.nombre ?? "Admin"} {user?.apellido ?? ""}
                   </p>
-                  <p className="text-xs truncate" style={{ color: "#666" }}>
-                    {user?.email ?? ""}
-                  </p>
+                  <p className="text-xs truncate" style={{ color: "#666" }}>{user?.email ?? ""}</p>
                 </div>
               </div>
-
-              {/* Roles */}
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {(user?.roles ?? []).map((rol) => (
                   <span
@@ -172,82 +203,48 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                   </span>
                 ))}
               </div>
-
               <button
                 onClick={async () => { await logout(); navigate("/login"); }}
                 className="w-full text-left text-xs flex items-center gap-2 px-3 py-2 rounded-lg transition-colors"
                 style={{ color: "#888", backgroundColor: "rgba(255,255,255,0.04)" }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#ef4444"; e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.08)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "#888"; e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.04)"; }}
               >
                 <Icons.Logout width={16} height={16} />
-                Cerrar Sesión
+                Cerrar sesión
               </button>
             </div>
           )}
         </div>
 
-        <nav className={`flex flex-col gap-1 p-3 flex-1 ${sidebarOpen ? "" : "items-center"}`}>
-          {/* ── Panel + Usuarios ──────────────────────────────────── */}
-          {topItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              title={!sidebarOpen ? item.label : undefined}
-              style={({ isActive }) => sidebarOpen ? navLinkStyle(isActive) : {
-                display: "flex", alignItems: "center", justifyContent: "center",
-                padding: "8px", borderRadius: 8,
-                backgroundColor: isActive ? "rgba(249,115,22,0.15)" : "transparent",
-                color: isActive ? "#C87A2E" : "#888",
-                border: isActive ? "1px solid rgba(249,115,22,0.25)" : "1px solid transparent",
-                transition: "all .15s",
-              }}
-            >
-              <span>{item.icon}</span>
-              {sidebarOpen && item.label}
-            </NavLink>
-          ))}
-          <div className="my-2" style={{ borderTop: `1px solid #4A3D2F`, width: sidebarOpen ? "100%" : "70%" }} />
-
-          {/* ── Pedidos ───────────────────────────────────────────── */}
-          {visibleItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              title={!sidebarOpen ? item.label : undefined}
-              style={({ isActive }) => sidebarOpen ? navLinkStyle(isActive) : {
-                display: "flex", alignItems: "center", justifyContent: "center",
-                padding: "8px", borderRadius: 8,
-                backgroundColor: isActive ? "rgba(249,115,22,0.15)" : "transparent",
-                color: isActive ? "#C87A2E" : "#888",
-                border: isActive ? "1px solid rgba(249,115,22,0.25)" : "1px solid transparent",
-                transition: "all .15s",
-              }}
-            >
-              <span>{item.icon}</span>
-              {sidebarOpen && item.label}
-            </NavLink>
-          ))}
-          <div className="my-2" style={{ borderTop: `1px solid #4A3D2F`, width: sidebarOpen ? "100%" : "70%" }} />
-
-          {/* ── Catálogo ──────────────────────────────────────────── */}
-          {catalogoItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              title={!sidebarOpen ? item.label : undefined}
-              style={({ isActive }) => sidebarOpen ? navLinkStyle(isActive) : {
-                display: "flex", alignItems: "center", justifyContent: "center",
-                padding: "8px", borderRadius: 8,
-                backgroundColor: isActive ? "rgba(249,115,22,0.15)" : "transparent",
-                color: isActive ? "#C87A2E" : "#888",
-                border: isActive ? "1px solid rgba(249,115,22,0.25)" : "1px solid transparent",
-                transition: "all .15s",
-              }}
-            >
-              <span>{item.icon}</span>
-              {sidebarOpen && item.label}
-            </NavLink>
+        <nav className={`flex flex-col gap-1 p-3 flex-1 overflow-y-auto ${sidebarOpen ? "" : "items-center"}`}>
+          {visibleGroups.map((group, gi) => (
+            <div key={group.title} className={gi > 0 ? "mt-1" : ""}>
+              {sidebarOpen && (
+                <p
+                  className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider"
+                  style={{ color: "#6b5a4a" }}
+                >
+                  {group.title}
+                </p>
+              )}
+              {!sidebarOpen && gi > 0 && (
+                <div className="my-2" style={{ borderTop: "1px solid #4A3D2F", width: "70%" }} />
+              )}
+              <div className="flex flex-col gap-0.5">
+                {group.items.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    title={!sidebarOpen ? item.label : undefined}
+                    style={({ isActive }) =>
+                      sidebarOpen ? navLinkStyle(isActive) : navLinkStyleCollapsed(isActive)
+                    }
+                  >
+                    <span>{item.icon}</span>
+                    {sidebarOpen && item.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 

@@ -4,6 +4,8 @@ import { usePedidos } from "../hooks/usePedidos";
 import { pedidosApi } from "../../pedidos/api/pedidosApi";
 import { PedidoCard } from "../../pedidos/components/pedidoCard";
 import api from "../../../shared/api/axiosClient";
+import { AdminPageHeader } from "../../../shared/components/AdminPageHeader";
+import { getApiErrorMessage } from "../../../shared/utils/apiError";
 
 interface IngredienteSimple { id: number; nombre: string }
 
@@ -34,22 +36,16 @@ export function CocinaPage() {
 
     if (error) return (
         <div className="rounded-xl p-4" style={{ backgroundColor: "#fee2e2", border: "1px solid #fecaca", color: "#991b1b" }}>
-            Error al cargar pedidos de cocina
+            {getApiErrorMessage(error, "Error al cargar pedidos de cocina")}
         </div>
     );
 
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold" style={{ color: "#2d1e0f" }}>
-                        Cocina
-                    </h1>
-                    <p className="text-sm mt-1" style={{ color: "#9a8070" }}>
-                        {pedidos.length} pedidos en preparacion · en vivo
-                    </p>
-                </div>
-            </div>
+        <div className="flex flex-col gap-6">
+            <AdminPageHeader
+                title="Cocina"
+                description={`Pedidos en preparación (${pedidos.length}). Se actualizan en vivo cuando cambian en el panel de pedidos.`}
+            />
 
             {pedidos.length === 0 ? (
                 <div className="text-center py-16" style={{ color: "#9a8070" }}>
